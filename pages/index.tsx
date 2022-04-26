@@ -1,3 +1,4 @@
+import AuthTemp from '@components/auth-temp'
 import type { NextPage } from 'next'
 import Head from 'next/head'
 
@@ -12,7 +13,10 @@ const Home: NextPage = () =>
       </Head>
 
       <main>
+        <AuthTemp />
+        <h1></h1>
         <h1>Home Page</h1>
+
       </main>
     </div>
   )
