@@ -1,3 +1,4 @@
+import { ServiceFactory } from "@lib/serviceFactory";
 import NextAuth from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials";
 
@@ -12,10 +13,35 @@ export default NextAuth({
             },
             async authorize(credentials, req)
             {
-                const user = { id: 1, name: "J Smith", email: "jsmith@example.com" }
+                const sec = await ServiceFactory.Security.getDefault();
+                const spw = await sec.hashValue(credentials?.password || '', process.env.SECURITY_SALT || '');
+                const db = await ServiceFactory.DatabaseFactory.getDefault();
+                const auth = await db.authenticateUser({ userName: credentials?.username || '', userPasswordToken: spw });
 
-                return user || null;
+                return auth != null ? {
+                    id: auth?.userName,
+                    isAdmin: auth?.isAdmin
+                } : null;
             }
         })
     ],
+    callbacks: {
+        // async signIn({ user, account, profile, email, credentials }) { return true },
+        async session({ session, user, token })
+        {
+            if (token)
+            {
+                session.user.isAdmin = token.isAdmin
+            }
+            return session
+        },
+        async jwt({ token, user, account, profile, isNewUser })
+        {
+            if (user)
+            {
+                token.isAdmin = user.isAdmin
+            }
+            return token
+        }
+    }
 })

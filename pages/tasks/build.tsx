@@ -1,12 +1,16 @@
-import type { NextPage } from 'next'
+import type { GetServerSideProps, NextPage } from 'next'
 import { FormEvent, useEffect, useState } from 'react'
-import { Button, FloatingLabel, Form } from 'react-bootstrap'
+import { Button, Form, Toast, ToastContainer } from 'react-bootstrap'
 import { InputElement } from '@components/elementInput';
 import { TasksEndpoint } from '@lib/api/tasksEndpoint';
+import { ToastPopupElement } from '@components/toastPopupElement';
+import { BootstrapHelper } from '@lib/bootsrapHelper';
+import { getSession, signIn } from "next-auth/react"
 
-export async function getServerSideProps()
+export const getServerSideProps: GetServerSideProps = async (context) =>
 {
-    if (process.env.NODE_ENV !== "development")
+    const session = await getSession(context);
+    if ((session && session.user) || (process.env.NODE_ENV !== "development"))
     {
         return {
             redirect: {
@@ -33,6 +37,7 @@ const BuildDatabase: NextPage = ({ targetType }: any) =>
     const [passwordRepeat, setPasswordRepeat] = useState('');
     const [accessKey, setAccessKey] = useState('');
     const [ready, setReady] = useState(false);
+    const toastRef = ToastPopupElement.GetRef();
 
     function PasswordRepeatInValid(): boolean
     {
@@ -63,7 +68,19 @@ const BuildDatabase: NextPage = ({ targetType }: any) =>
             accessKey: accessKey
         });
 
-        console.log(response);
+        if (response.succeeded)
+        {
+            signIn();
+        }
+        else
+        {
+            toastRef.current?.show({
+                title: 'Unsuccessful',
+                message: response.responseMessage,
+                variant: BootstrapHelper.Variants.Warning
+            });
+            setReady(true);
+        }
     }
 
     return (
@@ -90,6 +107,7 @@ const BuildDatabase: NextPage = ({ targetType }: any) =>
                 <InputElement.Large placeholder='Access Key' name='accessKey' value={accessKey} onChangeValue={setAccessKey} type="password" title={'DB_BUILD_SECRET'} subText='* from .env.DB_BUILD_SECRET' />
                 {ready && <Button className='mt-2' type='submit'>Submit</Button>}
             </Form>
+            <ToastPopupElement.Popup ref={toastRef} />
         </main>
     )
 }

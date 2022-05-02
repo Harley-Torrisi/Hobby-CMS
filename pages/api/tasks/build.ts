@@ -42,7 +42,7 @@ export default async function handler(
     const pws = await sec.hashValue(reqBody.password, process.env.SECURITY_SALT || '');
     const db = await ServiceFactory.DatabaseFactory.getDefault();
     await db.createDatabase();
-    await db.createUser({ userName: reqBody.username, userPassword: pws, isAdmin: true });
+    await db.createUser({ userName: reqBody.username, userPasswordToken: pws, isAdmin: true });
 
     return res.status(ResponseCodes.SuccessPost).json({
       status: ResponseCodes.SuccessPost,

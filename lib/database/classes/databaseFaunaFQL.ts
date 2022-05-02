@@ -1,8 +1,7 @@
 import DatabaseInterface from '@lib/database/interface/databaseInterface';
-import { DatabaseTableNames as TableNames } from '@lib/database/interface/databaseTableNames'
 import { DatabaseDTOs as DTOs } from '../interface/databaseDTOs';
-import faunadb from 'faunadb';
-const faunaQuery = faunadb.query;
+import faunadb, { query as faunaQuery } from 'faunadb';
+import { DatabaseSchema } from '../interface/databaseSchema';
 
 export default class DatabaseFaunaFQL implements DatabaseInterface
 {
@@ -33,15 +32,15 @@ export default class DatabaseFaunaFQL implements DatabaseInterface
         {
 
             console.log('# Creating database tables.')
-            console.log(`- ${TableNames.userAccount}`)
+            console.log(`- ${DatabaseSchema.UserAccount.TableName}`)
             await this.client.query(
-                faunaQuery.CreateCollection({ name: TableNames.userAccount, history_days: null })
+                faunaQuery.CreateCollection({ name: DatabaseSchema.UserAccount.TableName, history_days: null })
             )
             await this.client.query(
                 faunaQuery.CreateIndex({
-                    name: `${TableNames.userAccount}_PK`,
-                    source: faunaQuery.Collection(TableNames.userAccount),
-                    terms: [{ field: ["data", "id"] }],
+                    name: DatabaseSchema.UserAccount.PrimaryKeyName,
+                    source: faunaQuery.Collection(DatabaseSchema.UserAccount.TableName),
+                    terms: [{ field: ["data", DatabaseSchema.UserAccount.Fields.UserName] }],
                     unique: true
                 })
             )
@@ -55,22 +54,48 @@ export default class DatabaseFaunaFQL implements DatabaseInterface
         }
     }
 
-    async createUser(newUser: DTOs.NewUser): Promise<string>
+    async createUser(newUser: DTOs.NewUser): Promise<void>
     {
+        const user: DatabaseSchema.UserAccount.Entity = {
+            UserName: newUser.userName,
+            UserPasswordToken: newUser.userPasswordToken,
+            IsAdmin: newUser.isAdmin
+        };
+
         await this.client.query(
             faunaQuery.Create(
-                faunaQuery.Collection(TableNames.userAccount),
+                faunaQuery.Collection(DatabaseSchema.UserAccount.TableName),
                 {
-                    data: {
-                        id: 1,
-                        userName: newUser.userName,
-                        password: newUser.userPassword,
-                        isAdmin: newUser.isAdmin
-                    }
+                    data: user
                 }
             )
         );
+    }
 
-        return 'not implemented';
+    async authenticateUser({ userName, userPasswordToken }: DTOs.AuthCredentials): Promise<DTOs.UserDetails | null>
+    {
+        const response = await this.client.query(
+            faunaQuery.Get(
+                faunaQuery.Match(
+                    faunaQuery.Index(DatabaseSchema.UserAccount.PrimaryKeyName),
+                    userName
+                )
+            )
+        );
+
+        if (!response.data) return null;
+
+        const user: DatabaseSchema.UserAccount.Entity = {
+            UserName: response.data.UserName,
+            UserPasswordToken: response.data.UserPasswordToken,
+            IsAdmin: response.data.IsAdmin
+        };
+
+        if (user.UserPasswordToken !== userPasswordToken) return null;
+
+        return {
+            userName: user.UserName,
+            isAdmin: user.IsAdmin
+        }
     }
 }
