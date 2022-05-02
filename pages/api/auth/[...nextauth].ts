@@ -13,15 +13,21 @@ export default NextAuth({
             },
             async authorize(credentials, req)
             {
+
                 const sec = await ServiceFactory.Security.getDefault();
                 const spw = await sec.hashValue(credentials?.password || '', process.env.SECURITY_SALT || '');
                 const db = await ServiceFactory.DatabaseFactory.getDefault();
-                const auth = await db.authenticateUser({ userName: credentials?.username || '', userPasswordToken: spw });
-
-                return auth != null ? {
-                    id: auth?.userName,
-                    isAdmin: auth?.isAdmin
-                } : null;
+                try
+                {
+                    const auth = await db.authenticateUser({ userName: credentials?.username || '', userPasswordToken: spw });
+                    return auth != null ? {
+                        id: auth?.userName,
+                        isAdmin: auth?.isAdmin
+                    } : null;
+                }
+                catch {
+                    return null
+                }
             }
         })
     ],

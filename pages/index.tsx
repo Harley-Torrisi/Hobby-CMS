@@ -1,5 +1,5 @@
 import type { GetServerSideProps, NextPage } from 'next'
-import { getSession } from 'next-auth/react'
+import { getSession, signOut } from 'next-auth/react'
 import Head from 'next/head'
 
 export const getServerSideProps: GetServerSideProps = async (context) =>
@@ -33,6 +33,7 @@ const Home: NextPage = () =>
             </Head>
 
             <main>
+                <button className='btn btn-primary' onClick={() => signOut()}>Sign Out</button>
                 <h1>Home Page</h1>
             </main>
         </div>
