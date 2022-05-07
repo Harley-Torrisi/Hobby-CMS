@@ -1,11 +1,10 @@
 import type { GetServerSideProps, NextPage } from 'next'
 import { FormEvent, useEffect, useState } from 'react'
-import { Button, Form, Toast, ToastContainer } from 'react-bootstrap'
+import { Button, Form } from 'react-bootstrap'
 import { InputElement } from '@components/elementInput';
 import { TasksEndpoint } from '@lib/api/tasksEndpoint';
-import { ToastPopupElement } from '@components/toastPopupElement';
-import { BootstrapHelper } from '@lib/bootsrapHelper';
 import { getSession, signIn } from "next-auth/react"
+import { BootstrapToastShow } from '@components/boostrapToast';
 
 export const getServerSideProps: GetServerSideProps = async (context) =>
 {
@@ -37,7 +36,6 @@ const BuildDatabase: NextPage = ({ targetType }: any) =>
     const [passwordRepeat, setPasswordRepeat] = useState('');
     const [accessKey, setAccessKey] = useState('');
     const [ready, setReady] = useState(false);
-    const toastRef = ToastPopupElement.GetRef();
 
     function PasswordRepeatInValid(): boolean
     {
@@ -74,10 +72,10 @@ const BuildDatabase: NextPage = ({ targetType }: any) =>
         }
         else
         {
-            toastRef.current?.show({
+            BootstrapToastShow({
                 title: 'Unsuccessful',
                 message: response.responseMessage,
-                variant: BootstrapHelper.Variants.Warning
+                variant: "warning"
             });
             setReady(true);
         }
@@ -107,7 +105,6 @@ const BuildDatabase: NextPage = ({ targetType }: any) =>
                 <InputElement.Large placeholder='Access Key' name='accessKey' value={accessKey} onChangeValue={setAccessKey} type="password" title={'DB_BUILD_SECRET'} subText='* from .env.DB_BUILD_SECRET' />
                 {ready && <Button className='mt-2' type='submit'>Submit</Button>}
             </Form>
-            <ToastPopupElement.Popup ref={toastRef} />
         </main>
     )
 }
