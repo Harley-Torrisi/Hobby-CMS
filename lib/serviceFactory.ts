@@ -1,5 +1,5 @@
 import DatabaseInterface from "@lib/database/interface/databaseInterface";
-import DatabaseFaunaFQL from '@lib/database/classes/databaseFaunaFQL';
+import DatabaseFaunaFQL from '@lib/database/classes/faunaFQL/databaseFaunaFQL';
 import SecurityInterface from "@lib/security/securityInterface";
 import SecurityCryptoJS from "@lib/security/securityCryptoJS";
 
