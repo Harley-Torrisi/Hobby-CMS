@@ -1,28 +1,9 @@
-import type { GetServerSideProps, NextPage } from 'next'
-import { getSession, signOut } from 'next-auth/react'
+import type { GetServerSideProps } from 'next'
+import { signOut } from 'next-auth/react'
 import Head from 'next/head'
+import { NextPageCustom } from "@lib/appPropsCustom"
 
-export const getServerSideProps: GetServerSideProps = async (context) =>
-{
-    const session = await getSession(context);
-    if (!session || !session.user)
-    {
-        return {
-            redirect: {
-                destination: '/api/auth/signin',
-                permanent: false,
-            },
-        }
-    }
-    else
-    {
-        return {
-            props: {},
-        }
-    }
-}
-
-const Home: NextPage = () =>
+const Home: NextPageCustom = () =>
 {
     return (
         <div>
@@ -39,5 +20,4 @@ const Home: NextPage = () =>
         </div>
     )
 }
-
 export default Home
