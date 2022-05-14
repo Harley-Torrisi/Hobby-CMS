@@ -2,7 +2,9 @@ import '../styles/globals.scss'
 import { SessionProvider, useSession } from "next-auth/react"
 import BootstrapToast, { BoostrapToastSetRef } from '@components/boostrapToast';
 import { AppPropsCustom } from '@lib/appPropsCustom';
-import LoadingSkeleton from '@components/LoadingSkeleton';
+import LoadingSkeleton from '@components/loadingSkeleton';
+import Layout from '@components/layout';
+import { SSRProvider } from 'react-bootstrap';
 
 function MyApp({
   Component,
@@ -10,10 +12,14 @@ function MyApp({
 }: AppPropsCustom)
 {
   return (
-    <SessionProvider session={session}>
-      <BootstrapToast ref={BoostrapToastSetRef()}></BootstrapToast>
-      {Component.isPublic && <Component {...pageProps} /> || <Auth><Component {...pageProps} /></Auth>}
-    </SessionProvider>
+    <SSRProvider>
+      <SessionProvider session={session}>
+        <BootstrapToast ref={BoostrapToastSetRef()}></BootstrapToast>
+        <Layout>
+          {Component.isPublic && <Component {...pageProps} /> || <Auth><Component {...pageProps} /></Auth>}
+        </Layout>
+      </SessionProvider>
+    </SSRProvider>
   )
 }
 export default MyApp
@@ -21,5 +27,11 @@ export default MyApp
 function Auth({ children }: any)
 {
   const { status } = useSession({ required: true })
-  return status === 'loading' ? <LoadingSkeleton /> : children;
+
+  if (status === 'loading')
+  {
+    return <LoadingSkeleton />
+  }
+
+  return children
 }
