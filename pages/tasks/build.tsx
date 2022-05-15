@@ -1,10 +1,11 @@
-import type { GetServerSideProps, NextPage } from 'next'
+import type { GetServerSideProps } from 'next'
 import { FormEvent, useEffect, useState } from 'react'
 import { Button, Form } from 'react-bootstrap'
 import { InputElement } from '@components/elementInput';
 import { TasksEndpoint } from '@lib/api/tasksEndpoint';
 import { getSession, signIn } from "next-auth/react"
 import { BootstrapToastShow } from '@components/boostrapToast';
+import { NextPageCustom } from '@lib/appPropsCustom';
 
 export const getServerSideProps: GetServerSideProps = async (context) =>
 {
@@ -29,9 +30,11 @@ export const getServerSideProps: GetServerSideProps = async (context) =>
 }
 
 
-const BuildDatabase: NextPage = ({ targetType }: any) =>
+const BuildDatabase: NextPageCustom = ({ targetType }: any) =>
 {
-    const [username, setUsername] = useState('');
+    const [projectName, setProjectName] = useState('New Project');
+    const [displayName, setDisplayName] = useState('John Smith');
+    const [username, setUsername] = useState('admin');
     const [password, setPassword] = useState('');
     const [passwordRepeat, setPasswordRepeat] = useState('');
     const [accessKey, setAccessKey] = useState('');
@@ -45,6 +48,8 @@ const BuildDatabase: NextPage = ({ targetType }: any) =>
     useEffect(() =>
     {
         const ready = (
+            projectName &&
+            displayName &&
             username &&
             password &&
             passwordRepeat &&
@@ -52,7 +57,7 @@ const BuildDatabase: NextPage = ({ targetType }: any) =>
             accessKey
         ) ? true : false
         setReady(ready);
-    }, [username, password, passwordRepeat, accessKey])
+    }, [username, password, passwordRepeat, accessKey, projectName, displayName])
 
     async function submit(e: FormEvent)
     {
@@ -61,6 +66,8 @@ const BuildDatabase: NextPage = ({ targetType }: any) =>
 
         const endpoint = new TasksEndpoint.Handler();
         const response = await endpoint.buildDatabase({
+            projectName: projectName,
+            userDisplayName: displayName,
             username: username,
             password: password,
             accessKey: accessKey
@@ -72,6 +79,7 @@ const BuildDatabase: NextPage = ({ targetType }: any) =>
         }
         else
         {
+            console.error(response.responseMessage);
             BootstrapToastShow({
                 title: 'Unsuccessful',
                 message: response.responseMessage,
@@ -90,6 +98,8 @@ const BuildDatabase: NextPage = ({ targetType }: any) =>
             >
                 <span className='h4 mx-auto text-success'>Create Database/User</span>
                 <span className='h6 mx-auto text-uppercase pb-0'>With <u>{targetType}</u>.</span>
+                <InputElement.Large placeholder='Project Name' name='projectName' value={projectName} onChangeValue={setProjectName} />
+                <InputElement.Large placeholder='User Display Name' name='displayName' value={displayName} onChangeValue={setDisplayName} />
                 <InputElement.Large placeholder='Username' name='username' value={username} onChangeValue={setUsername} />
                 <InputElement.Large placeholder='Password' name='password' value={password} onChangeValue={setPassword} type="password" />
                 {password &&
@@ -108,5 +118,5 @@ const BuildDatabase: NextPage = ({ targetType }: any) =>
         </main>
     )
 }
-
+BuildDatabase.isPublic = true;
 export default BuildDatabase

@@ -2,9 +2,16 @@ export namespace DatabaseDTOs
 {
     export interface NewUser
     {
+        displayName: string
         userName: string
         userPasswordToken: string
-        isAdmin: boolean
+    }
+
+    export interface NewProject
+    {
+        projectName: string
+        accessToken: string
+        isActive: boolean
     }
 
     export interface AuthCredentials
@@ -15,7 +22,15 @@ export namespace DatabaseDTOs
 
     export interface UserDetails
     {
+        displayName: string
         userName: string
-        isAdmin: boolean
+    }
+
+    export interface ProjectDetails
+    {
+        projectID: string
+        projectName: string
+        accessToken: string
+        isActive: boolean
     }
 }

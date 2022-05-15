@@ -22,7 +22,6 @@ export default NextAuth({
                     const auth = await db.authenticateUser({ userName: credentials?.username || '', userPasswordToken: spw });
                     return auth != null ? {
                         id: auth?.userName,
-                        isAdmin: auth?.isAdmin
                     } : null;
                 }
                 catch {
@@ -31,23 +30,4 @@ export default NextAuth({
             }
         })
     ],
-    callbacks: {
-        // async signIn({ user, account, profile, email, credentials }) { return true },
-        async session({ session, user, token })
-        {
-            if (token)
-            {
-                session.user.isAdmin = token.isAdmin
-            }
-            return session
-        },
-        async jwt({ token, user, account, profile, isNewUser })
-        {
-            if (user)
-            {
-                token.isAdmin = user.isAdmin
-            }
-            return token
-        }
-    }
 })

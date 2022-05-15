@@ -6,6 +6,8 @@ export namespace TasksEndpoint
     {
         export interface BuildRequestDTO
         {
+            projectName: string
+            userDisplayName: string
             username: string
             password: string
             accessKey: string

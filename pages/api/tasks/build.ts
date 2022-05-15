@@ -39,10 +39,14 @@ export default async function handler(
   try
   {
     const sec = await ServiceFactory.Security.getDefault();
-    const pws = await sec.hashValue(reqBody.password, process.env.SECURITY_SALT || '');
+    const userPasswordToken = await sec.hashValue(reqBody.password, process.env.SECURITY_SALT || '');
+    const projectAccessToken = await sec.hashValue(reqBody.projectName, process.env.SECURITY_SALT || '');
     const db = await ServiceFactory.DatabaseFactory.getDefault();
     await db.createDatabase();
-    await db.createUser({ userName: reqBody.username, userPasswordToken: pws, isAdmin: true });
+    const createU = await db.createUser({ userName: reqBody.username, userPasswordToken: userPasswordToken });
+    if (!createU) throw new Error("Failed to create new user.");
+    const createP = await db.createProject({ projectName: reqBody.projectName, isActive: true, accessToken: projectAccessToken });
+    if (!createP) throw new Error("Failed to create new project.");
 
     return res.status(ResponseCodes.SuccessPost).json({
       status: ResponseCodes.SuccessPost,
@@ -55,7 +59,7 @@ export default async function handler(
   {
     return res.status(ResponseCodes.ServerError).json({
       status: ResponseCodes.ServerError,
-      succeeded: true,
+      succeeded: false,
       responseMessage: exception.message,
       data: null
     })

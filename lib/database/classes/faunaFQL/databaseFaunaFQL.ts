@@ -26,9 +26,9 @@ export default class DatabaseFaunaFQL implements DatabaseInterface
         this.databaseName = databaseName;
     }
 
-    private async insertAsync(table: string, data: any): Promise<void>
+    private async insertAsync<TEntity>(table: string, data: TEntity): Promise<TEntity | null>
     {
-        await this.client.query(
+        var response = await this.client.query(
             faunaQuery.Create(
                 faunaQuery.Collection(table),
                 {
@@ -36,6 +36,7 @@ export default class DatabaseFaunaFQL implements DatabaseInterface
                 }
             )
         );
+        return response.data || null;
     }
 
     private async getAsync<TEntity>(primaryKey: string, primaryKeyValue: string): Promise<TEntity | null>
@@ -51,6 +52,25 @@ export default class DatabaseFaunaFQL implements DatabaseInterface
         return response.data || null;
     }
 
+    private async updateAsync<TEntity>(primaryKey: string, primaryKeyValue: string, data: TEntity): Promise<TEntity | null>
+    {
+        const response = await this.client.Update(
+            faunaQuery.Select("ref",
+                faunaQuery.Get(
+                    faunaQuery.Match(
+                        faunaQuery.Index(primaryKey),
+                        primaryKeyValue
+                    )
+                )
+            ),
+            {
+                data: data
+            }
+        );
+
+        return response.data || null;
+    }
+
     async createDatabase(): Promise<void>
     {
         try
@@ -61,6 +81,7 @@ export default class DatabaseFaunaFQL implements DatabaseInterface
             await this.client.query(
                 faunaQuery.CreateCollection({ name: DatabaseSchema.UserAccount.tableName, history_days: null })
             )
+
             await this.client.query(
                 faunaQuery.CreateCollection({ name: DatabaseSchema.Project.tableName, history_days: null })
             )
@@ -98,19 +119,25 @@ export default class DatabaseFaunaFQL implements DatabaseInterface
         }
         catch (e: any)
         {
-            throw new Error('# Error: ' + e.message);
+            console.log('# Error: ' + e.message)
+            throw new Error(e.message);
         }
     }
 
-    async createUser(newUser: DTOs.NewUser): Promise<void>
+    async createUser(newUser: DTOs.NewUser): Promise<DTOs.UserDetails | null>
     {
         const user: DatabaseSchema.UserAccount.Entity = {
+            DisplayName: newUser.displayName,
             UserName: newUser.userName,
-            UserPasswordToken: newUser.userPasswordToken,
-            IsAdmin: newUser.isAdmin
+            UserPasswordToken: newUser.userPasswordToken
         };
 
-        await this.insertAsync(DatabaseSchema.UserAccount.tableName, user);
+        const response = await this.insertAsync(DatabaseSchema.UserAccount.tableName, user);
+
+        return response && {
+            displayName: response.DisplayName,
+            userName: response.UserName
+        } || null
     }
 
     async authenticateUser({ userName, userPasswordToken }: DTOs.AuthCredentials): Promise<DTOs.UserDetails | null>
@@ -120,16 +147,35 @@ export default class DatabaseFaunaFQL implements DatabaseInterface
         if (!response) return null;
 
         const user: DatabaseSchema.UserAccount.Entity = {
+            DisplayName: response.DisplayName,
             UserName: response.UserName,
-            UserPasswordToken: response.UserPasswordToken,
-            IsAdmin: response.IsAdmin
+            UserPasswordToken: response.UserPasswordToken
         };
 
         if (user.UserPasswordToken !== userPasswordToken) return null;
 
         return {
-            userName: user.UserName,
-            isAdmin: user.IsAdmin
+            displayName: user.DisplayName,
+            userName: user.UserName
         }
+    }
+
+    async createProject({ projectName, accessToken, isActive }: DTOs.NewProject): Promise<DTOs.ProjectDetails | null>
+    {
+        const project: DatabaseSchema.Project.Entity = {
+            ProjectID: await this.client.query(faunaQuery.NewId()),
+            ProjectName: projectName,
+            AccessToken: accessToken,
+            IsActive: isActive
+        };
+
+        const response = await this.insertAsync(DatabaseSchema.Project.tableName, project);
+
+        return response && {
+            projectID: response.ProjectID,
+            projectName: response.ProjectName,
+            accessToken: response.AccessToken,
+            isActive: response.IsActive
+        } || null
     }
 }

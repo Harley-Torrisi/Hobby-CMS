@@ -1,24 +1,26 @@
-import NextAuth from "next-auth"
-import { JWT } from "next-auth/jwt"
+// Removed until addition preopeties acually needed
 
-declare module "next-auth" {
-    interface User
-    {
-        isAdmin: boolean
-    }
+// import NextAuth from "next-auth"
+// import { JWT } from "next-auth/jwt"
 
-    interface Session
-    {
-        user: {
-            isAdmin: boolean
-        }
-    }
-}
+// declare module "next-auth" {
+//     interface User
+//     {
+//         isAdmin: boolean
+//     }
 
-declare module "next-auth/jwt" {
-    /** Returned by the `jwt` callback and `getToken`, when using JWT sessions */
-    interface JWT
-    {
-        isAdmin: boolean
-    }
-}
+//     interface Session
+//     {
+//         user: {
+//             isAdmin: boolean
+//         }
+//     }
+// }
+
+// declare module "next-auth/jwt" {
+//     /** Returned by the `jwt` callback and `getToken`, when using JWT sessions */
+//     interface JWT
+//     {
+//         isAdmin: boolean
+//     }
+// }

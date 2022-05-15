@@ -10,9 +10,9 @@ export namespace DatabaseSchema
     {
         export interface Entity
         {
+            DisplayName: string
             UserName: string
             UserPasswordToken: string
-            IsAdmin: boolean
         }
 
         export const tableName = 'UserAccount';
@@ -28,7 +28,7 @@ export namespace DatabaseSchema
         {
             ProjectID: string
             ProjectName: string
-            ReadToken: string
+            AccessToken: string
             IsActive: boolean
         }
 

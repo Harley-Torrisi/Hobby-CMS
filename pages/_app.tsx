@@ -15,9 +15,11 @@ function MyApp({
     <SSRProvider>
       <SessionProvider session={session}>
         <BootstrapToast ref={BoostrapToastSetRef()}></BootstrapToast>
-        <Layout>
-          {Component.isPublic && <Component {...pageProps} /> || <Auth><Component {...pageProps} /></Auth>}
-        </Layout>
+        {Component.isPublic && <Component {...pageProps} /> ||
+          <Layout>
+            <Auth><Component {...pageProps} /></Auth>
+          </Layout>
+        }
       </SessionProvider>
     </SSRProvider>
   )
