@@ -7,9 +7,9 @@ const Home: NextPageCustom = () =>
 {
     return (
         <>
-            <LayoutHead title='Home' />
+            <LayoutHead title='Projects' />
             <LayoutMain>
-                <h1>Home Page</h1>
+                <h1>Projects</h1>
             </LayoutMain>
         </>
     )

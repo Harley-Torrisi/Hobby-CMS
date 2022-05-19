@@ -43,35 +43,37 @@ export const BootstrapToast = React.forwardRef<RefCallbackCustom>((_, ref) =>
         )
     }
 
-    return (<>
-        <ToastContainer position="top-start" className="ms-3 mt-3">
-            {DisplayToatsList(toasts.filter(x => x.toastPosition == "top-start"))}
-        </ToastContainer>
-        <ToastContainer position="top-center" className="mt-3">
-            {DisplayToatsList(toasts.filter(x => x.toastPosition == "top-center"))}
-        </ToastContainer>
-        <ToastContainer position="top-end" className="me-3 mt-3">
-            {DisplayToatsList(toasts.filter(x => x.toastPosition == "top-end"))}
-        </ToastContainer>
-        <ToastContainer position="middle-start" className="ms-3">
-            {DisplayToatsList(toasts.filter(x => x.toastPosition == "middle-start"))}
-        </ToastContainer>
-        <ToastContainer position="middle-center" >
-            {DisplayToatsList(toasts.filter(x => x.toastPosition == "middle-center"))}
-        </ToastContainer>
-        <ToastContainer position="middle-end" className="me-3">
-            {DisplayToatsList(toasts.filter(x => x.toastPosition == "middle-end"))}
-        </ToastContainer>
-        <ToastContainer position="bottom-start" className="ms-3 mb-3">
-            {DisplayToatsList(toasts.filter(x => x.toastPosition == "bottom-start"))}
-        </ToastContainer>
-        <ToastContainer position="bottom-center" className="mb-3">
-            {DisplayToatsList(toasts.filter(x => x.toastPosition == "bottom-center"))}
-        </ToastContainer>
-        <ToastContainer position="bottom-end" className="me-3 mb-3">
-            {DisplayToatsList(toasts.filter(x => x.toastPosition == "bottom-end"))}
-        </ToastContainer>
-    </>)
+    return (
+        <div title="bootstrap-toast-container">
+            <ToastContainer position="top-start" className="ms-3 mt-3">
+                {DisplayToatsList(toasts.filter(x => x.toastPosition == "top-start"))}
+            </ToastContainer>
+            <ToastContainer position="top-center" className="mt-3">
+                {DisplayToatsList(toasts.filter(x => x.toastPosition == "top-center"))}
+            </ToastContainer>
+            <ToastContainer position="top-end" className="me-3 mt-3">
+                {DisplayToatsList(toasts.filter(x => x.toastPosition == "top-end"))}
+            </ToastContainer>
+            <ToastContainer position="middle-start" className="ms-3">
+                {DisplayToatsList(toasts.filter(x => x.toastPosition == "middle-start"))}
+            </ToastContainer>
+            <ToastContainer position="middle-center" >
+                {DisplayToatsList(toasts.filter(x => x.toastPosition == "middle-center"))}
+            </ToastContainer>
+            <ToastContainer position="middle-end" className="me-3">
+                {DisplayToatsList(toasts.filter(x => x.toastPosition == "middle-end"))}
+            </ToastContainer>
+            <ToastContainer position="bottom-start" className="ms-3 mb-3">
+                {DisplayToatsList(toasts.filter(x => x.toastPosition == "bottom-start"))}
+            </ToastContainer>
+            <ToastContainer position="bottom-center" className="mb-3">
+                {DisplayToatsList(toasts.filter(x => x.toastPosition == "bottom-center"))}
+            </ToastContainer>
+            <ToastContainer position="bottom-end" className="me-3 mb-3">
+                {DisplayToatsList(toasts.filter(x => x.toastPosition == "bottom-end"))}
+            </ToastContainer>
+        </div>
+    )
 });
 BootstrapToast.displayName = "BootstrapToast";
 export default BootstrapToast;
