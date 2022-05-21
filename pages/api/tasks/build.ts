@@ -1,6 +1,6 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import { BaseAPI } from '@lib/api/baseAPI'
-import ResponseCodes from '@lib/api/responseCodes';
+import { ResponseCodes } from '@lib/api/responseCodes';
 import { TasksEndpoint } from '@lib/api/tasksEndpoint';
 import { ServiceFactory } from '@lib/serviceFactory';
 import type { NextApiRequest, NextApiResponse } from 'next'
@@ -43,7 +43,7 @@ export default async function handler(
     const projectAccessToken = await sec.hashValue(reqBody.projectName, process.env.SECURITY_SALT || '');
     const db = await ServiceFactory.DatabaseFactory.getDefault();
     await db.createDatabase();
-    const createU = await db.userCreate({ userName: reqBody.username, userPasswordToken: userPasswordToken });
+    const createU = await db.userCreate({ displayName: reqBody.userDisplayName, userName: reqBody.username, userPasswordToken: userPasswordToken });
     if (!createU) throw new Error("Failed to create new user.");
     const createP = await db.projectCreate({ projectName: reqBody.projectName, isActive: true, accessToken: projectAccessToken });
     if (!createP) throw new Error("Failed to create new project.");
