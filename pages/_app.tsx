@@ -15,12 +15,12 @@ function MyApp({
   return (
     <SSRProvider>
       <SessionProvider session={session}>
-        <BootstrapToast ref={BoostrapToastSetRef()}></BootstrapToast>
         {Component.isPublic && <Component {...pageProps} /> ||
           <LayoutBase>
             <Auth><Component {...pageProps} /></Auth>
           </LayoutBase>
         }
+        <BootstrapToast ref={BoostrapToastSetRef()}></BootstrapToast>
       </SessionProvider>
     </SSRProvider>
   )

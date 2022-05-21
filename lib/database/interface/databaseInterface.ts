@@ -8,14 +8,23 @@ export default interface DatabaseInterface
     /** 
      * @async Create a new User for CMS authentication. 
      * @returns The user's new ID. Depending on implementation, this could be encrypted or not. */
-    createUser({ userName, userPasswordToken }: DTOs.NewUser): Promise<DTOs.UserDetails | null>
+    userCreate({ userName, userPasswordToken }: DTOs.UserCreate): Promise<DTOs.UserGet | null>
 
     /**
      * @async Authenticate user with credential sign in.
      * @returns User object if successful.
      */
-    authenticateUser({ userName, userPasswordToken }: DTOs.AuthCredentials): Promise<DTOs.UserDetails | null>
+    userAuthenticate({ userName, userPasswordToken }: DTOs.AuthCredentials): Promise<DTOs.UserGet | null>
 
     /** @async Create new Project for Posts to be associated with. */
-    createProject({ projectName, accessToken, isActive }: DTOs.NewProject): Promise<DTOs.ProjectDetails | null>
+    projectCreate({ projectName, accessToken, isActive }: DTOs.ProjectCreate): Promise<DTOs.ProjectGet | null>
+
+    /** @async Get all projects. */
+    projectGetAll(): Promise<DTOs.ProjectGet[] | null>
+
+    /** @async Update Projects name or Token. */
+    projectUpdate({ projectID, projectName, accessToken, isActive }: DTOs.ProjectUpdate): Promise<DTOs.ProjectGet | null>
+
+    /** @async Delete project. */
+    projectDelete(projectID: string): Promise<boolean>
 }

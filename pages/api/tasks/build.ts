@@ -43,9 +43,9 @@ export default async function handler(
     const projectAccessToken = await sec.hashValue(reqBody.projectName, process.env.SECURITY_SALT || '');
     const db = await ServiceFactory.DatabaseFactory.getDefault();
     await db.createDatabase();
-    const createU = await db.createUser({ userName: reqBody.username, userPasswordToken: userPasswordToken });
+    const createU = await db.userCreate({ userName: reqBody.username, userPasswordToken: userPasswordToken });
     if (!createU) throw new Error("Failed to create new user.");
-    const createP = await db.createProject({ projectName: reqBody.projectName, isActive: true, accessToken: projectAccessToken });
+    const createP = await db.projectCreate({ projectName: reqBody.projectName, isActive: true, accessToken: projectAccessToken });
     if (!createP) throw new Error("Failed to create new project.");
 
     return res.status(ResponseCodes.SuccessPost).json({

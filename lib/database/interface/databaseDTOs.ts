@@ -1,32 +1,40 @@
 export namespace DatabaseDTOs
 {
-    export interface NewUser
-    {
-        displayName: string
-        userName: string
-        userPasswordToken: string
-    }
-
-    export interface NewProject
-    {
-        projectName: string
-        accessToken: string
-        isActive: boolean
-    }
-
     export interface AuthCredentials
     {
         userName: string
         userPasswordToken: string
     }
 
-    export interface UserDetails
+    export interface UserCreate
+    {
+        displayName: string
+        userName: string
+        userPasswordToken: string
+    }
+
+    export interface UserGet
     {
         displayName: string
         userName: string
     }
 
-    export interface ProjectDetails
+    export interface ProjectCreate
+    {
+        projectName: string
+        accessToken: string
+        isActive: boolean
+    }
+
+    export interface ProjectGet
+    {
+        projectID: string
+        projectName: string
+        accessToken: string
+        isActive: boolean
+    }
+
+    export interface ProjectUpdate
     {
         projectID: string
         projectName: string

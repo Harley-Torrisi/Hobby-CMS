@@ -1,6 +1,7 @@
 import React, { ReactElement, useImperativeHandle, useRef, useState } from "react";
 import { Toast, ToastContainer } from "react-bootstrap";
 import { ToastPosition } from "react-bootstrap/esm/ToastContainer";
+import Styles from '@styles/components/bootstrap-toast.module.scss';
 
 export const BootstrapToast = React.forwardRef<RefCallbackCustom>((_, ref) =>
 {
@@ -31,10 +32,15 @@ export const BootstrapToast = React.forwardRef<RefCallbackCustom>((_, ref) =>
         }
     }
 
+    function getFontColorClass(bgVariant?: string): string
+    {
+        return bgVariant && ['dark', 'success', 'danger'].includes(bgVariant) ? 'text-white' : 'text-dark';
+    }
+
     function DisplayToatsList(items: ToastItem[])
     {
         return items.map((x, _) =>
-            <Toast key={x.id} onClose={() => closeHandler(x.id)} show={true} delay={x?.duration} autohide bg={x.variant}>
+            <Toast key={x.id} onClose={() => closeHandler(x.id)} show={true} delay={x?.duration} autohide bg={x.variant} className={getFontColorClass(x.variant)}>
                 <Toast.Header>
                     <strong className="me-auto">{x.title}</strong>
                 </Toast.Header>
@@ -44,8 +50,8 @@ export const BootstrapToast = React.forwardRef<RefCallbackCustom>((_, ref) =>
     }
 
     return (
-        <div title="bootstrap-toast-container">
-            <ToastContainer position="top-start" className="ms-3 mt-3">
+        <div className={Styles.Main}>
+            <ToastContainer position="top-start" className="ms-3 mt-3 bootstrap-toast-child">
                 {DisplayToatsList(toasts.filter(x => x.toastPosition == "top-start"))}
             </ToastContainer>
             <ToastContainer position="top-center" className="mt-3">

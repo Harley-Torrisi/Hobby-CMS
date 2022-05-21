@@ -19,7 +19,7 @@ export default NextAuth({
                 const db = await ServiceFactory.DatabaseFactory.getDefault();
                 try
                 {
-                    const auth = await db.authenticateUser({ userName: credentials?.username || '', userPasswordToken: spw });
+                    const auth = await db.userAuthenticate({ userName: credentials?.username || '', userPasswordToken: spw });
                     return auth != null ? {
                         id: auth?.userName,
                     } : null;

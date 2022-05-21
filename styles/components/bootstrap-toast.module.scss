@@ -1,0 +1,12 @@
+.Main {
+    position: relative;
+    z-index: 2000;
+
+    >div {
+        position: fixed !important;
+    }
+}
+
+// .bootstrap-toast-child {
+//     
+// }

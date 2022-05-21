@@ -1,0 +1,19 @@
+.ev-hover {
+    .ev-trigger-nth-d-block {
+        display: none;
+    }
+
+    .ev-trigger-nth-d-flex {
+        display: none;
+    }
+
+    &:hover {
+        .ev-trigger-nth-d-block {
+            display: block;
+        }
+
+        .ev-trigger-nth-d-flex {
+            display: flex;
+        }
+    }
+}

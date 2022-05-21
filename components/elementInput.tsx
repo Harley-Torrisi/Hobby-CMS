@@ -16,7 +16,9 @@ export namespace InputElement
         subText?: string,
         className?: string,
         isInvalid?: boolean,
-        name?: string
+        name?: string,
+        readonly?: boolean
+        disabled?: boolean
     }
     export function Large({
         value, placeholder,
@@ -26,7 +28,9 @@ export namespace InputElement
         subText,
         className,
         isInvalid,
-        name
+        name,
+        readonly = false,
+        disabled = false
     }: Props)
     {
         function onChangeHandler(event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>)
@@ -42,6 +46,8 @@ export namespace InputElement
                     value={value} onChange={onChangeHandler}
                     isInvalid={isInvalid}
                     name={name}
+                    readOnly={readonly}
+                    disabled={disabled}
                 />
                 {subText && <Form.Text>{subText}</Form.Text>}
             </FloatingLabel>

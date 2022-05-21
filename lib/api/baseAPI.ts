@@ -1,4 +1,5 @@
 import { AxiosRequestConfig, AxiosRequestHeaders, AxiosStatic, Method } from "axios"
+import { DefaultResponses } from "./defaultResponses"
 
 export namespace BaseAPI
 {
@@ -6,7 +7,7 @@ export namespace BaseAPI
     {
         status: number
         succeeded: boolean
-        responseMessage: string
+        responseMessage?: string
         data: TData | null
     }
 
@@ -39,12 +40,13 @@ export namespace BaseAPI
             try
             {
                 const options: AxiosRequestConfig = {
-                    url: '/api/' + action,
+                    url: '/api/private/' + action,
                     method: method,
                     data: data,
                     params: queryParams,
                     headers: headers,
                 }
+
                 const req = await this.cxt.request(options);
                 const res: RequestResponse<TData> = req.data as unknown as RequestResponse<TData>;
                 try
@@ -55,10 +57,13 @@ export namespace BaseAPI
             }
             catch (exception: any)
             {
-                if (exception.response.data)
-                    return exception.response.data as RequestResponse<TData>;
+                if (!exception.response)
+                    return DefaultResponses.serverError;
 
-                return exception.response as unknown as RequestResponse<TData>;
+                if (!exception.response.data)
+                    return exception.response as unknown as RequestResponse<TData>;
+
+                return exception.response.data as RequestResponse<TData>;
             }
         }
     }

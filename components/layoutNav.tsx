@@ -1,5 +1,4 @@
 import { Container, Nav, Navbar, NavDropdown } from "react-bootstrap";
-import { signOut } from 'next-auth/react'
 import { useRouter } from "next/router";
 
 export function LayoutNav()
@@ -39,7 +38,7 @@ export function LayoutNav()
                         */}
                     </Nav>
                     <Nav>
-                        <Nav.Link href={undefined} onClick={() => signOut()}>Sign Out</Nav.Link>
+                        <Nav.Link href="/api/auth/signout">Sign Out</Nav.Link>
                     </Nav>
                 </Navbar.Collapse>
             </Container>

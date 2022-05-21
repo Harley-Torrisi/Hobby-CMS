@@ -52,23 +52,67 @@ export default class DatabaseFaunaFQL implements DatabaseInterface
         return response.data || null;
     }
 
-    private async updateAsync<TEntity>(primaryKey: string, primaryKeyValue: string, data: TEntity): Promise<TEntity | null>
+    private async getAllAsync<TEntity>(tableName: string): Promise<TEntity[] | null>
     {
-        const response = await this.client.Update(
-            faunaQuery.Select("ref",
-                faunaQuery.Get(
-                    faunaQuery.Match(
-                        faunaQuery.Index(primaryKey),
-                        primaryKeyValue
+        const response = await this.client.query(
+            faunaQuery.Map(
+                faunaQuery.Paginate(
+                    faunaQuery.Documents(
+                        faunaQuery.Collection(tableName)
                     )
-                )
-            ),
-            {
-                data: data
-            }
+                ),
+                faunaQuery.Lambda(x => faunaQuery.Get(x))
+            )
+        );
+
+        return response.data
+            ? response.data.map((x: { data: TEntity; }) => { return x.data as TEntity; })
+            : null;
+    }
+
+    private async updateAsync<TEntity>(primaryKey: string, primaryKeyValue: string, data: any): Promise<TEntity | null>
+    {
+        const response = await this.client.query(
+            faunaQuery.Update(
+                faunaQuery.Select("ref",
+                    faunaQuery.Get(
+                        faunaQuery.Match(
+                            faunaQuery.Index(primaryKey),
+                            primaryKeyValue
+                        )
+                    )
+                ),
+                {
+                    data: data
+                }
+            )
         );
 
         return response.data || null;
+    }
+
+    private async deleteAsync(primaryKey: string, primaryKeyValue: string): Promise<boolean>
+    {
+        try
+        {
+            await this.client.query(
+                faunaQuery.Delete(
+                    faunaQuery.Select("ref",
+                        faunaQuery.Get(
+                            faunaQuery.Match(
+                                faunaQuery.Index(primaryKey),
+                                primaryKeyValue
+                            )
+                        )
+                    )
+                )
+            );
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     async createDatabase(): Promise<void>
@@ -124,7 +168,7 @@ export default class DatabaseFaunaFQL implements DatabaseInterface
         }
     }
 
-    async createUser(newUser: DTOs.NewUser): Promise<DTOs.UserDetails | null>
+    async userCreate(newUser: DTOs.UserCreate): Promise<DTOs.UserGet | null>
     {
         const user: DatabaseSchema.UserAccount.Entity = {
             DisplayName: newUser.displayName,
@@ -140,7 +184,7 @@ export default class DatabaseFaunaFQL implements DatabaseInterface
         } || null
     }
 
-    async authenticateUser({ userName, userPasswordToken }: DTOs.AuthCredentials): Promise<DTOs.UserDetails | null>
+    async userAuthenticate({ userName, userPasswordToken }: DTOs.AuthCredentials): Promise<DTOs.UserGet | null>
     {
         const response = await this.getAsync<DatabaseSchema.UserAccount.Entity>(DatabaseSchema.UserAccount.primarKey.key, userName);
 
@@ -160,7 +204,7 @@ export default class DatabaseFaunaFQL implements DatabaseInterface
         }
     }
 
-    async createProject({ projectName, accessToken, isActive }: DTOs.NewProject): Promise<DTOs.ProjectDetails | null>
+    async projectCreate({ projectName, accessToken, isActive }: DTOs.ProjectCreate): Promise<DTOs.ProjectGet | null>
     {
         const project: DatabaseSchema.Project.Entity = {
             ProjectID: await this.client.query(faunaQuery.NewId()),
@@ -177,5 +221,50 @@ export default class DatabaseFaunaFQL implements DatabaseInterface
             accessToken: response.AccessToken,
             isActive: response.IsActive
         } || null
+    }
+
+    async projectGetAll(): Promise<DTOs.ProjectGet[] | null>
+    {
+        const response = await this.getAllAsync<DatabaseSchema.Project.Entity>(DatabaseSchema.Project.tableName);
+
+        if (!response) return null;
+
+        const result = response.map(x => ({
+            projectID: x.ProjectID,
+            projectName: x.ProjectName,
+            isActive: x.IsActive,
+            accessToken: x.AccessToken,
+        } as DTOs.ProjectGet));
+
+        return result;
+    }
+
+    async projectUpdate({ projectID, projectName, accessToken, isActive }: DTOs.ProjectUpdate): Promise<DTOs.ProjectGet | null>
+    {
+
+        const projectData: DatabaseSchema.Project.Entity = {
+            ProjectID: projectID,
+            ProjectName: projectName,
+            AccessToken: accessToken,
+            IsActive: isActive
+        };
+
+        const response = await this.updateAsync<DatabaseSchema.Project.Entity>(
+            DatabaseSchema.Project.primarKey.key,
+            projectID,
+            projectData
+        );
+
+        return !response ? null : {
+            projectID: response?.ProjectID,
+            projectName: response?.ProjectName,
+            accessToken: response?.AccessToken,
+            isActive: response?.IsActive
+        };
+    }
+
+    async projectDelete(projectID: string): Promise<boolean>
+    {
+        return await this.deleteAsync(DatabaseSchema.Project.primarKey.key, projectID);
     }
 }
