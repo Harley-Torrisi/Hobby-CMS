@@ -1,7 +1,7 @@
 import '../styles/globals.scss'
 import { SessionProvider, useSession } from "next-auth/react"
 import BootstrapToast, { BoostrapToastSetRef } from '@components/boostrapToast';
-import { AppPropsCustom } from '@lib/appPropsCustom';
+import { AppPropsCustom } from '@lib/extentions/appPropsCustom';
 import { LoadingSkeleton } from '@components/loadingSkeleton';
 import { LayoutBase } from '@components/layoutBase';
 import { SSRProvider } from 'react-bootstrap';
@@ -17,7 +17,9 @@ function MyApp({
       <SessionProvider session={session}>
         {Component.isPublic && <Component {...pageProps} /> ||
           <LayoutBase>
-            <Auth><Component {...pageProps} /></Auth>
+            <Auth>
+              <Component {...pageProps} />
+            </Auth>
           </LayoutBase>
         }
         <BootstrapToast ref={BoostrapToastSetRef()}></BootstrapToast>

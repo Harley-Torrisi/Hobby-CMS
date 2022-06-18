@@ -1,4 +1,5 @@
-import { ServiceFactory } from "@lib/serviceFactory";
+import { DatabaseContextFactory } from "@lib/database/context/databaseContextFactory";
+import { CryptoServiceFactory } from "@lib/services/cryptoService";
 import NextAuth from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials";
 
@@ -13,21 +14,44 @@ export default NextAuth({
             },
             async authorize(credentials, req)
             {
+                if (!credentials) return null;
 
-                const sec = await ServiceFactory.Security.getDefault();
-                const spw = await sec.hashValue(credentials?.password || '', process.env.SECURITY_SALT || '');
-                const db = await ServiceFactory.DatabaseFactory.getDefault();
-                try
-                {
-                    const auth = await db.userAuthenticate({ userName: credentials?.username || '', userPasswordToken: spw });
-                    return auth != null ? {
-                        id: auth?.userName,
-                    } : null;
-                }
-                catch {
-                    return null
+                const db = await DatabaseContextFactory.getDefault();
+                const user = await db.userGet(credentials.username);
+
+                if (!user || !user.IsActive) return null;
+
+                const passwordToken = await (await CryptoServiceFactory.getDefault()).hashValueDefault(credentials.password);
+
+                if (user.PasswordToken !== passwordToken) return null;
+
+                return {
+                    id: user.UserID,
+                    isAdmin: user.IsActive,
+                    userName: user.UserName,
                 }
             }
         })
     ],
+    callbacks: {
+        async session({ session, user, token })
+        {
+            if (token) //Sined In
+            {
+                session.user.isAdmin = token.isAdmin;
+                session.user.userName = token.userName;
+            }
+
+            return session
+        },
+        async jwt({ token, user, account, profile, isNewUser })
+        {
+            if (user) //Sined In
+            {
+                token.isAdmin = user.isAdmin;
+                token.userName = user.userName;
+            }
+            return token
+        }
+    }
 })

@@ -43,7 +43,7 @@ export namespace InputElement
             <FloatingLabel label={placeholder} title={title} className={className}>
                 <Form.Control
                     type={type} placeholder={placeholder}
-                    value={value} onChange={onChangeHandler}
+                    value={value ?? ""} onChange={onChangeHandler}
                     isInvalid={isInvalid}
                     name={name}
                     readOnly={readonly}

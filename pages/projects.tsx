@@ -1,45 +1,31 @@
 import type { GetServerSideProps } from 'next'
-import { NextPageCustom } from "@lib/appPropsCustom"
+import { NextPageCustom } from "@lib/extentions/appPropsCustom"
 import { LayoutMain } from '@components/layoutMain'
 import { LayoutHead } from '@components/layoutHead'
-import { Queries } from '@lib/api/queries'
-import { DefaultResponses } from '@lib/api/defaultResponses'
-import { DatabaseDTOs as DTOs } from '@lib/database/interface/databaseDTOs';
 import { ChangeEvent, useState } from 'react'
 import { Alert, Button, FormCheck, Modal } from 'react-bootstrap'
 import { InputElement } from '@components/elementInput'
 import { BootstrapToastShow } from '@components/boostrapToast';
 import { PopuptInput } from '@components/popupInput'
 import { PopupConfirm } from '@components/popupConfirm'
+import { ProjectControllerInterface, ProjectControllerSS, ProjectControllerCS } from '@lib/controllers/projectController'
+import { ProjectGetResponse } from '@lib/models/projectDTOs/projectGetResponse'
 
 export const getServerSideProps: GetServerSideProps = async (context) =>
 {
-    const query: Queries = new Queries();
-    const response = await query.getProjects();
-
-    if (response.succeeded)
-    {
-        return {
-            props: {
-                projects: response.data
-            }
-        }
+    const controller: ProjectControllerInterface = new ProjectControllerSS();
+    const data = await controller.getAllProjects();
+    return {
+        props: { data }
     }
-
-    return DefaultResponses.redirect('/');
-
 }
 
-interface Props
+const Projects: NextPageCustom<any> = (props) =>
 {
-    projects: DTOs.ProjectGet[];
-}
-
-const Home: NextPageCustom<Props> = (props) =>
-{
-    const [projects, setProjects] = useState<DTOs.ProjectGet[]>(props.projects);
-    const [editingProject, setEditingProject] = useState<DTOs.ProjectGet | null>(null);
+    const [projects, setProjects] = useState<ProjectGetResponse[]>(props.data);
+    const [editingProject, setEditingProject] = useState<ProjectGetResponse | null>(null);
     const [actionWaiting, setActionWaiting] = useState(false);
+    const [showActiveProjectToken, setShowActiveProjectToken] = useState(false);
     const newProjectInputRef = PopuptInput.GetRef();
     const deleteConfirmRef = PopupConfirm.GetRef();
 
@@ -51,41 +37,34 @@ const Home: NextPageCustom<Props> = (props) =>
             {
                 if (response == PopupConfirm.ResponseTypes.Yes)
                 {
-                    const query: Queries = new Queries();
-                    const resposne = await query.deleteProject(projectID);
-
-                    if (resposne.succeeded)
+                    try
                     {
+                        const controller: ProjectControllerInterface = new ProjectControllerCS();
+                        await controller.deteProject({ projectID });
+
                         BootstrapToastShow({
-                            title: 'Complete',
-                            message: 'Project has been deleted.',
-                            variant: "info",
-                            toastPosition: "top-center",
+                            title: 'Complete', message: 'Project has been deleted.',
+                            variant: "info", toastPosition: "top-center",
                         });
 
-                        const index = projects.indexOf(
-                            projects.find(x => x.projectID == projectID)!
-                        );
-
+                        const index = projects.indexOf(projects.find(x => x.projectID == projectID)!);
                         projects.splice(index, 1);
-
                         setProjects([...projects]);
                     }
-                    else
+                    catch (error: any)
                     {
                         BootstrapToastShow({
-                            title: 'Error',
-                            message: resposne.responseMessage,
-                            variant: "Error",
-                            toastPosition: "top-center",
+                            title: 'Error', message: error,
+                            variant: "danger", toastPosition: "top-center",
                         });
                     }
+
                 }
             }
         });
     }
 
-    async function newPorjectHandler()
+    async function newProjectHandler()
     {
         newProjectInputRef.current?.Show({
             header: "Select New Project Name",
@@ -95,28 +74,25 @@ const Home: NextPageCustom<Props> = (props) =>
             {
                 if (typeof value === 'undefined') return;
 
-                const query: Queries = new Queries();
-                const resposne = await query.createProject(value);
-
-                if (resposne.succeeded && resposne.data)
+                try
                 {
+                    const controller: ProjectControllerInterface = new ProjectControllerCS();
+                    const response = await controller.createProject({ projectName: value });
+
                     BootstrapToastShow({
-                        title: 'Complete',
-                        message: 'Project has been added.',
-                        variant: "success",
-                        toastPosition: "top-center",
+                        title: 'Complete', message: 'Project has been added.',
+                        variant: "success", toastPosition: "top-center",
                     });
 
-                    projects.push(resposne.data);
+                    projects.push(response);
                     setProjects([...projects]);
+                    setEditingProject(response);
                 }
-                else
+                catch (error: any)
                 {
                     BootstrapToastShow({
-                        title: 'Error',
-                        message: resposne.responseMessage,
-                        variant: "Error",
-                        toastPosition: "top-center",
+                        title: 'Error', message: error,
+                        variant: "danger", toastPosition: "top-center",
                     });
                 }
             }
@@ -125,11 +101,13 @@ const Home: NextPageCustom<Props> = (props) =>
 
     function editProjectCloseHandler()
     {
+        setShowActiveProjectToken(false);
         setEditingProject(null);
     }
 
-    function editProjectOpenHandler(project: DTOs.ProjectGet)
+    function editProjectOpenHandler(project: ProjectGetResponse)
     {
+        setShowActiveProjectToken(false);
         setEditingProject(project);
     }
 
@@ -140,21 +118,19 @@ const Home: NextPageCustom<Props> = (props) =>
         if (!editingProject.projectName || !editingProject.accessToken)
         {
             BootstrapToastShow({
-                title: 'Warning',
-                message: 'Project Name or Access Token missing.',
-                variant: "warning",
-                toastPosition: "top-center",
+                title: 'Warning', message: 'Project Name or Access Token missing.',
+                variant: "warning", toastPosition: "top-center",
             });
             return;
         }
 
         setActionWaiting(true);
 
-        const query: Queries = new Queries();
-        const resposne = await query.updateProject({ projectID: editingProject.projectID, projectName: editingProject.projectName, accessToken: editingProject.accessToken, isActive: editingProject.isActive });
-
-        if (resposne.succeeded && resposne.data)
+        try
         {
+            const controller: ProjectControllerInterface = new ProjectControllerCS();
+            const updated = await controller.updateProject(editingProject);
+
             BootstrapToastShow({
                 title: 'Complete',
                 message: 'Project has been updated.',
@@ -162,26 +138,18 @@ const Home: NextPageCustom<Props> = (props) =>
                 toastPosition: "top-center",
             });
 
-            const index = projects.indexOf(
-                projects.find(x => x.projectID == editingProject.projectID)!
-            );
-
-            projects[index] = resposne.data;
-
+            const index = projects.indexOf(projects.find(x => x.projectID == updated.projectID)!);
+            projects[index] = updated;
             setProjects([...projects]);
             setEditingProject(null);
         }
-        else
+        catch (error: any)
         {
             BootstrapToastShow({
-                title: 'Error',
-                message: resposne.responseMessage,
-                variant: "Error",
-                toastPosition: "top-center",
+                title: 'Error', message: error,
+                variant: "danger", toastPosition: "top-center",
             });
         }
-
-
         setActionWaiting(false);
     }
 
@@ -203,7 +171,7 @@ const Home: NextPageCustom<Props> = (props) =>
                                     <span className='flex-grow'>
                                         Project Name
                                     </span>
-                                    <span role="button" className='text-secondary' onClick={newPorjectHandler}>[Add]</span>
+                                    <span role="button" className='text-secondary' onClick={newProjectHandler}>[Add]</span>
                                 </div>
                             </th>
                         </tr>
@@ -224,7 +192,7 @@ const Home: NextPageCustom<Props> = (props) =>
                                     </div>
                                 </td>
                             </tr>
-                        ) || <tr><td className='p-1 pt-2 text-center'>...No Data...</td></tr>}
+                        ) || <tr><td className='p-1 pt-2 text-center'>...No Projects...</td></tr>}
                     </tbody>
                 </table>
             </LayoutMain>
@@ -240,13 +208,20 @@ const Home: NextPageCustom<Props> = (props) =>
                             onChangeValue={(value) => setEditingProject({ ...editingProject, projectName: value })}
                         />
 
-                        <InputElement.Large
-                            placeholder='Acess Token'
-                            name='accessToken'
-                            value={editingProject.accessToken}
-                            disabled={actionWaiting}
-                            onChangeValue={(value) => setEditingProject({ ...editingProject, accessToken: value })}
-                        />
+                        <div className="flex gap-2 flex-align-center">
+                            <InputElement.Large
+                                placeholder='Acess Token'
+                                name='accessToken'
+                                value={editingProject.accessToken}
+                                disabled={actionWaiting}
+                                onChangeValue={(value) => setEditingProject({ ...editingProject, accessToken: value })}
+                                type={showActiveProjectToken ? "text" : "password"}
+                                className="flex-grow"
+                            />
+                            <i className={`ev-hover ev-trigger-hand me-1 bi bi-${showActiveProjectToken ? "eye-slash" : "eye"}`} style={{ fontSize: '2rem' }}
+                                onClick={() => setShowActiveProjectToken(!showActiveProjectToken)}></i>
+                        </div>
+
                         <div>
                             <FormCheck
                                 label="Is Active" type="switch" id='editProjectActiveSwitch'
@@ -276,4 +251,4 @@ const Home: NextPageCustom<Props> = (props) =>
         </>
     )
 }
-export default Home
+export default Projects

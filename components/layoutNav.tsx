@@ -23,6 +23,7 @@ export function LayoutNav()
                         {GetNavLink("/", "Dashboard", "activity")}
                         {GetNavLink("/projects", "Projects", "collection")}
                         {GetNavLink("/posts", "Posts", "card-text")}
+                        {GetNavLink("/users", "User Management", "people")}
                         <Nav.Link href="#other">
                             <i className="bi bi-images me-1"></i>
                             Images

@@ -1,5 +1,5 @@
 import type { GetServerSideProps } from 'next'
-import { NextPageCustom } from "@lib/appPropsCustom"
+import { NextPageCustom } from "@lib/extentions/appPropsCustom"
 import { LayoutMain } from '@components/layoutMain'
 import { LayoutHead } from '@components/layoutHead'
 

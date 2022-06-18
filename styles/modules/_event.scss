@@ -16,4 +16,8 @@
             display: flex;
         }
     }
+
+    &.ev-trigger-hand {
+        cursor: pointer;
+    }
 }

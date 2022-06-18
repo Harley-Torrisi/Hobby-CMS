@@ -1,5 +1,4 @@
-import React, { useImperativeHandle, useState } from "react";
-import { useRef } from "react";
+import { useImperativeHandle, useState, RefObject, forwardRef, useRef } from "react";
 import { Button, Modal } from "react-bootstrap";
 
 export namespace PopupConfirm
@@ -31,12 +30,12 @@ export namespace PopupConfirm
         Show = ({ header, message, responseCallback }: EventProps) => this.showEvent({ header, message, responseCallback });
     }
 
-    export function GetRef(): React.RefObject<RefCallback>
+    export function GetRef(): RefObject<RefCallback>
     {
         return useRef<RefCallback>(null);
     }
 
-    export const Element = React.forwardRef<RefCallback>((_, ref) =>
+    export const Element = forwardRef<RefCallback>((_, ref) =>
     {
         const [showModal, setShowModal] = useState<boolean>(false);
         const [eventProps, setEventProps] = useState<EventProps | null>(null);
