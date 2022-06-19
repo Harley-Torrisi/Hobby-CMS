@@ -1,6 +1,7 @@
 import { ProjectCreateRequest } from "@lib/models/projectDTOs/projectCreateRequest";
 import { ProjectDeleteRequest } from "@lib/models/projectDTOs/projectDeleteRequest";
 import { ProjectGetResponse } from "@lib/models/projectDTOs/projectGetResponse";
+import { ProjectOptionItem } from "@lib/models/projectDTOs/projectOptionItem";
 import { ProjectUpdateRequest } from "@lib/models/projectDTOs/projectUpdateRequest";
 import { CryptoServiceFactory } from "@lib/services/cryptoService";
 import { BaseControllerCS } from "./_baseControllerCS";
@@ -8,15 +9,28 @@ import { BaseControllerSS } from "./_baseControllerSS";
 
 export interface ProjectControllerInterface
 {
-    getAllProjects(): Promise<ProjectGetResponse[]>
-    deteProject(data: ProjectDeleteRequest): Promise<boolean>
-    updateProject(data: ProjectUpdateRequest): Promise<ProjectGetResponse>
-    createProject(data: ProjectCreateRequest): Promise<ProjectGetResponse>
+    getAll(): Promise<ProjectGetResponse[]>
+    getOptionItems(): Promise<ProjectOptionItem[]>
+    delete(data: ProjectDeleteRequest): Promise<boolean>
+    update(data: ProjectUpdateRequest): Promise<ProjectGetResponse>
+    create(data: ProjectCreateRequest): Promise<ProjectGetResponse>
 }
 
 export class ProjectControllerCS extends BaseControllerCS implements ProjectControllerInterface
 {
-    async createProject(data: ProjectCreateRequest): Promise<ProjectGetResponse>
+    async getOptionItems(): Promise<ProjectOptionItem[]>
+    {
+        const response = await this.api.Request<ProjectOptionItem[]>({
+            method: "GET",
+            action: "project/fragment/options",
+        });
+        if (!response.succeeded || !response.data)
+            throw response.responseMessage;
+
+        return response.data;
+    }
+
+    async create(data: ProjectCreateRequest): Promise<ProjectGetResponse>
     {
         const response = await this.api.Request<ProjectGetResponse>({
             method: "POST",
@@ -30,7 +44,7 @@ export class ProjectControllerCS extends BaseControllerCS implements ProjectCont
         return response.data;
     }
 
-    async updateProject(projectUpdate: ProjectUpdateRequest): Promise<ProjectGetResponse>
+    async update(projectUpdate: ProjectUpdateRequest): Promise<ProjectGetResponse>
     {
         const response = await this.api.Request<ProjectGetResponse>({
             method: "PUT",
@@ -44,7 +58,7 @@ export class ProjectControllerCS extends BaseControllerCS implements ProjectCont
         return response.data;
     }
 
-    async getAllProjects(): Promise<ProjectGetResponse[]>
+    async getAll(): Promise<ProjectGetResponse[]>
     {
         const response = await this.api.Request<ProjectGetResponse[]>({
             method: "GET",
@@ -56,7 +70,7 @@ export class ProjectControllerCS extends BaseControllerCS implements ProjectCont
         return response.data;
     }
 
-    async deteProject(data: ProjectDeleteRequest): Promise<boolean>
+    async delete(data: ProjectDeleteRequest): Promise<boolean>
     {
         const response = await this.api.Request<boolean>({
             method: "DELETE",
@@ -73,7 +87,14 @@ export class ProjectControllerCS extends BaseControllerCS implements ProjectCont
 
 export class ProjectControllerSS extends BaseControllerSS implements ProjectControllerInterface
 {
-    async createProject(data: ProjectCreateRequest): Promise<ProjectGetResponse>
+    async getOptionItems(): Promise<ProjectOptionItem[]>
+    {
+        const db = await this.dbPromise;
+        const response = await db.projectGetOptionItems();
+        return response;
+    }
+
+    async create(data: ProjectCreateRequest): Promise<ProjectGetResponse>
     {
         const sec = await CryptoServiceFactory.getDefault();
         const accessToken = await sec.hashValueDefault(data.projectName + await sec.randomUUID());
@@ -91,7 +112,7 @@ export class ProjectControllerSS extends BaseControllerSS implements ProjectCont
         return response;
     }
 
-    async updateProject(data: ProjectUpdateRequest): Promise<ProjectGetResponse>
+    async update(data: ProjectUpdateRequest): Promise<ProjectGetResponse>
     {
         const db = await this.dbPromise;
 
@@ -112,7 +133,7 @@ export class ProjectControllerSS extends BaseControllerSS implements ProjectCont
         return response;
     }
 
-    async getAllProjects(): Promise<ProjectGetResponse[]>
+    async getAll(): Promise<ProjectGetResponse[]>
     {
         const db = await this.dbPromise;
         const response = await db.projectGetAll();
@@ -126,7 +147,7 @@ export class ProjectControllerSS extends BaseControllerSS implements ProjectCont
         return data;
     }
 
-    async deteProject(data: ProjectDeleteRequest): Promise<boolean>
+    async delete(data: ProjectDeleteRequest): Promise<boolean>
     {
         const db = await this.dbPromise;
         await db.projectDelete(data.projectID);

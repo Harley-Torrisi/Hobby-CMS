@@ -4,6 +4,9 @@ import { ImageModel } from "../models/imageModel";
 import { PostModel } from "../models/postModel";
 import { ProjectModel } from "../models/projectModel";
 import { UserModel } from "../models/userModel";
+import { ProjectOptionItem } from "@lib/models/projectDTOs/projectOptionItem";
+import { Collection, Documents, Exp, Get, Lambda, Map, Paginate, Select, Var } from "faunadb";
+import { PostListItem } from "@lib/models/postDTOs/postListItem";
 
 enum DatabaseNames
 {
@@ -20,11 +23,6 @@ enum DatabasePrimaryKeys
     Post = "Post_PK",
     Image = "Image_PK",
 }
-
-// enum DatabaseForiegnKeys
-// {
-//     UserProject = "User_Project_FK"
-// }
 
 enum DatabasePrimaryKeyColumns
 {
@@ -107,6 +105,21 @@ export class FaunaContext implements DatabaseContextInterface
         return response;
     }
 
+    async projectGetOptionItems(): Promise<ProjectOptionItem[]>
+    {
+        const response = await this.cxt.getAllFragmented<ProjectOptionItem>(
+            DatabaseNames.Project,
+            Lambda(
+                "x",
+                {
+                    projectId: Select(['data', 'ProjectID'], Get(Var("x"))),
+                    projectName: Select(['data', 'ProjectName'], Get(Var("x")))
+                } as unknown as ProjectOptionItem
+            )
+        );
+        return response;
+    }
+
     async projectUpdate(ProjectID: string, ProjectName: string, AccessToken: string, IsActive: boolean): Promise<ProjectModel>
     {
         return await this.cxt.update(
@@ -120,11 +133,21 @@ export class FaunaContext implements DatabaseContextInterface
         await this.cxt.delete(DatabasePrimaryKeys.Project, ProjectID);
     }
 
-    async postCreate(ProjectID: string, UserID: string, ImageID: string | undefined, PostDescription: string | undefined, PostDate: string, PostData: string, MetaTags: string | undefined, IsPublished: boolean): Promise<PostModel>
+    async postCreate(
+        ProjectID: string,
+        PostName: string,
+        PostDescription: string,
+        PostDate: number,
+        PostData: string,
+        UserID: string,
+        ImageID: string,
+        MetaTags: { [key: string]: string },
+        IsPublished: boolean
+    ): Promise<PostModel>
     {
         const response = this.cxt.create(
             DatabaseNames.Post,
-            { ProjectID, UserID, ImageID: ImageID, PostDescription, PostDate, PostData, MetaTags, IsPublished } as PostModel
+            { PostID: await this.cxt.newID(), ProjectID, PostName, PostDescription, PostDate, PostData, UserID, ImageID, MetaTags, IsPublished } as PostModel
         );
         return response;
     }
@@ -141,6 +164,24 @@ export class FaunaContext implements DatabaseContextInterface
         return response;
     }
 
+    async postGetListItems(): Promise<PostListItem[]>
+    {
+        const response = await this.cxt.getAllFragmented<PostListItem>(
+            DatabaseNames.Post,
+            Lambda(
+                "x",
+                {
+                    postId: Select(['data', 'PostID'], Get(Var("x"))),
+                    projectId: Select(['data', 'ProjectID'], Get(Var("x"))),
+                    postName: Select(['data', 'PostName'], Get(Var("x"))),
+                    postDate: Select(['data', 'PostDate'], Get(Var("x"))),
+                    isPublished: Select(['data', 'IsPublished'], Get(Var("x")))
+                } as unknown as PostListItem
+            )
+        );
+        return response;
+    }
+
     async postGetByProjectPaged(projectID: number, pageNumber: number, pageSize: number): Promise<ProjectModel[]>
     {
         throw new Error("Method not implemented.");
@@ -148,10 +189,11 @@ export class FaunaContext implements DatabaseContextInterface
 
     async postUpdate(PostID: string, ProjectID: string, UserID: string, ImageID: string | undefined, PostDescription: string | undefined, PostDate: string, PostData: string, MetaTags: string | undefined, IsPublished: boolean): Promise<void>
     {
-        await this.cxt.update(
-            DatabasePrimaryKeys.Post, PostID,
-            { ProjectID, UserID, ImageID, PostDescription, PostDate, PostData, MetaTags, IsPublished } as PostModel
-        );
+        throw new Error("Method not implemented.");
+        // await this.cxt.update(
+        //     DatabasePrimaryKeys.Post, PostID,
+        //     { ProjectID, UserID, ImageID, PostDescription, PostDate, PostData, MetaTags, IsPublished } as PostModel
+        // );
     }
 
     async postDelete(PostID: string): Promise<void>

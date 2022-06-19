@@ -14,7 +14,7 @@ import { ProjectGetResponse } from '@lib/models/projectDTOs/projectGetResponse'
 export const getServerSideProps: GetServerSideProps = async (context) =>
 {
     const controller: ProjectControllerInterface = new ProjectControllerSS();
-    const data = await controller.getAllProjects();
+    const data = await controller.getAll();
     return {
         props: { data }
     }
@@ -40,7 +40,7 @@ const Projects: NextPageCustom<any> = (props) =>
                     try
                     {
                         const controller: ProjectControllerInterface = new ProjectControllerCS();
-                        await controller.deteProject({ projectID });
+                        await controller.delete({ projectID });
 
                         BootstrapToastShow({
                             title: 'Complete', message: 'Project has been deleted.',
@@ -77,7 +77,7 @@ const Projects: NextPageCustom<any> = (props) =>
                 try
                 {
                     const controller: ProjectControllerInterface = new ProjectControllerCS();
-                    const response = await controller.createProject({ projectName: value });
+                    const response = await controller.create({ projectName: value });
 
                     BootstrapToastShow({
                         title: 'Complete', message: 'Project has been added.',
@@ -129,7 +129,7 @@ const Projects: NextPageCustom<any> = (props) =>
         try
         {
             const controller: ProjectControllerInterface = new ProjectControllerCS();
-            const updated = await controller.updateProject(editingProject);
+            const updated = await controller.update(editingProject);
 
             BootstrapToastShow({
                 title: 'Complete',

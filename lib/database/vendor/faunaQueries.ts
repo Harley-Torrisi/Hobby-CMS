@@ -4,7 +4,7 @@ import
     Collection, Documents, Index,
     Match, Paginate, Select, Map, Lambda,
     CreateIndex, CreateCollection,
-    Client, ClientConfig, NewId
+    Client, ClientConfig, NewId, Expr
 } from 'faunadb';
 
 interface QueryResponsSingle<TData>
@@ -17,9 +17,14 @@ interface QueryResponsMulti<TData>
     data: { data: TData }[]
 }
 
+interface QueryResponsMultiFragmented<TData>
+{
+    data: TData[]
+}
+
 export class FaunaQueries
 {
-    private client: Client
+    client: Client
 
     constructor({ secret, domain, port, scheme }: ClientConfig)
     {
@@ -75,6 +80,17 @@ export class FaunaQueries
             )
         );
         return this.unmapQueryResponsMulti(response);
+    }
+
+    getAllFragmented = async <TEntity>(collectionName: string, exp: Expr): Promise<TEntity[]> =>
+    {
+        const response = await this.client.query<QueryResponsMultiFragmented<TEntity>>(
+            Map(
+                Paginate(Documents(Collection(collectionName))),
+                exp
+            )
+        );
+        return response.data;
     }
 
     update = async <TEntity>(indexName: string, indexValue: string, data: object): Promise<TEntity> =>

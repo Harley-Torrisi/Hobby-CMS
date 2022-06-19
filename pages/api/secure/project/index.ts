@@ -23,7 +23,7 @@ export default async function handler(
 		if (req.method == "GET")
 		{
 			const controller = new ProjectControllerSS();
-			const projects = await controller.getAllProjects();
+			const projects = await controller.getAll();
 			const response = ApiResonseBuilder.successGet(projects);
 			return res.status(response.status).json(response);
 		}
@@ -31,7 +31,7 @@ export default async function handler(
 		if (req.method == "DELETE")
 		{
 			const controller = new ProjectControllerSS();
-			const projects = await controller.deteProject(req.body as ProjectDeleteRequest);
+			const projects = await controller.delete(req.body as ProjectDeleteRequest);
 			const response = ApiResonseBuilder.successGet(projects);
 			return res.status(response.status).json(response);
 		}
@@ -39,7 +39,7 @@ export default async function handler(
 		if (req.method == "PUT")
 		{
 			const controller = new ProjectControllerSS();
-			const projects = await controller.updateProject(req.body as ProjectUpdateRequest);
+			const projects = await controller.update(req.body as ProjectUpdateRequest);
 			const response = ApiResonseBuilder.successGet(projects);
 			return res.status(response.status).json(response);
 		}
@@ -47,7 +47,7 @@ export default async function handler(
 		if (req.method == "POST")
 		{
 			const controller = new ProjectControllerSS();
-			const projects = await controller.createProject(req.body as ProjectCreateRequest);
+			const projects = await controller.create(req.body as ProjectCreateRequest);
 			const response = ApiResonseBuilder.successGet(projects);
 			return res.status(response.status).json(response);
 		}

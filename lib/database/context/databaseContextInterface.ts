@@ -1,3 +1,5 @@
+import { PostListItem } from "@lib/models/postDTOs/postListItem"
+import { ProjectOptionItem } from "@lib/models/projectDTOs/projectOptionItem"
 import { ImageModel } from "../models/imageModel"
 import { PostModel } from "../models/postModel"
 import { ProjectModel } from "../models/projectModel"
@@ -32,13 +34,26 @@ export interface DatabaseContextInterface
     projectGetAll():
         Promise<ProjectModel[]>
 
+    projectGetOptionItems():
+        Promise<ProjectOptionItem[]>
+
     projectUpdate(ProjectID: string, ProjectName: string, AccessToken: string, IsActive: boolean):
         Promise<ProjectModel>
 
     projectDelete(ProjectID: string):
         Promise<void>
 
-    postCreate(ProjectID: string, UserID: string, ImageID: string | undefined, PostDescription: string | undefined, PostDate: string, PostData: string, MetaTags: string | undefined, IsPublished: boolean):
+    postCreate(
+        ProjectID: string,
+        PostName: string,
+        PostDescription: string,
+        PostDate: number,
+        PostData: string,
+        UserID: string,
+        ImageID: string,
+        MetaTags: { [key: string]: string },
+        IsPublished: boolean
+    ):
         Promise<PostModel>
 
     postGet(PostID: string):
@@ -46,6 +61,9 @@ export interface DatabaseContextInterface
 
     postGetAll():
         Promise<PostModel[]>
+
+    postGetListItems():
+        Promise<PostListItem[]>
 
     postGetByProjectPaged(projectID: number, pageNumber: number, pageSize: number):
         Promise<ProjectModel[]>
