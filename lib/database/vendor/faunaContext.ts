@@ -5,10 +5,10 @@ import { PostModel } from "../models/postModel";
 import { ProjectModel } from "../models/projectModel";
 import { UserModel } from "../models/userModel";
 import { ProjectOptionItem } from "@lib/models/projectDTOs/projectOptionItem";
-import { Collection, Documents, Exp, Get, Lambda, Map, Paginate, Select, Var } from "faunadb";
+import { Get, Lambda, Select, Var } from "faunadb";
 import { PostListItem } from "@lib/models/postDTOs/postListItem";
 
-enum DatabaseNames
+enum TableNames
 {
     User = "User",
     Project = "Project",
@@ -16,7 +16,7 @@ enum DatabaseNames
     Image = "Image",
 }
 
-enum DatabasePrimaryKeys
+enum TableIndexNames
 {
     User = "User_PK",
     Project = "Project_PK",
@@ -24,7 +24,7 @@ enum DatabasePrimaryKeys
     Image = "Image_PK",
 }
 
-enum DatabasePrimaryKeyColumns
+enum TableIndexColumns
 {
     User = "UserID",
     Project = "ProjectID",
@@ -53,38 +53,38 @@ export class FaunaContext implements DatabaseContextInterface
 
     async userCreate(UserID: string, UserName: string, PasswordToken: string, IsAdmin: boolean): Promise<UserModel>
     {
-        const response = await this.cxt.create<UserModel>(DatabaseNames.User, { UserID, UserName, PasswordToken, IsAdmin } as UserModel)
+        const response = await this.cxt.create<UserModel>(TableNames.User, { UserID, UserName, PasswordToken, IsAdmin } as UserModel)
         return response;
     }
 
     async userGet(UserID: string): Promise<UserModel | null>
     {
-        const response = await this.cxt.get<UserModel | null>(DatabasePrimaryKeys.User, UserID);
+        const response = await this.cxt.get<UserModel | null>(TableIndexNames.User, UserID);
         return response;
     }
 
     async userGetAll(): Promise<UserModel[]>
     {
-        const response = await this.cxt.getAll<UserModel>(DatabaseNames.User);
+        const response = await this.cxt.getAll<UserModel>(TableNames.User);
         return response;
     }
 
     async userUpdate(UserID: string, UserName: string, PasswordToken: string, IsAdmin: boolean, IsActive: boolean): Promise<void>
     {
         await this.cxt.update(
-            DatabasePrimaryKeys.User, UserID,
+            TableIndexNames.User, UserID,
             { UserName, PasswordToken, IsAdmin, IsActive } as UserModel
         );
     }
 
     async userDelete(UserID: string): Promise<void>
     {
-        await this.cxt.delete(DatabasePrimaryKeys.User, UserID);
+        await this.cxt.delete(TableIndexNames.User, UserID);
     }
 
     async projectCreate(ProjectName: string, AccessToken: string): Promise<ProjectModel>
     {
-        const response = this.cxt.create(DatabaseNames.Project, {
+        const response = this.cxt.create(TableNames.Project, {
             ProjectID: await this.cxt.newID(),
             ProjectName,
             AccessToken,
@@ -95,20 +95,20 @@ export class FaunaContext implements DatabaseContextInterface
 
     async projectGet(ProjectID: string): Promise<ProjectModel | null>
     {
-        const response = await this.cxt.get<ProjectModel | null>(DatabasePrimaryKeys.Project, ProjectID);
+        const response = await this.cxt.get<ProjectModel | null>(TableIndexNames.Project, ProjectID);
         return response;
     }
 
     async projectGetAll(): Promise<ProjectModel[]>
     {
-        const response = await this.cxt.getAll<ProjectModel>(DatabaseNames.Project);
+        const response = await this.cxt.getAll<ProjectModel>(TableNames.Project);
         return response;
     }
 
     async projectGetOptionItems(): Promise<ProjectOptionItem[]>
     {
         const response = await this.cxt.getAllFragmented<ProjectOptionItem>(
-            DatabaseNames.Project,
+            TableNames.Project,
             Lambda(
                 "x",
                 {
@@ -123,14 +123,14 @@ export class FaunaContext implements DatabaseContextInterface
     async projectUpdate(ProjectID: string, ProjectName: string, AccessToken: string, IsActive: boolean): Promise<ProjectModel>
     {
         return await this.cxt.update(
-            DatabasePrimaryKeys.Project, ProjectID,
+            TableIndexNames.Project, ProjectID,
             { ProjectName, AccessToken, IsActive } as ProjectModel
         );
     }
 
     async projectDelete(ProjectID: string): Promise<void>
     {
-        await this.cxt.delete(DatabasePrimaryKeys.Project, ProjectID);
+        await this.cxt.delete(TableIndexNames.Project, ProjectID);
     }
 
     async postCreate(
@@ -146,7 +146,7 @@ export class FaunaContext implements DatabaseContextInterface
     ): Promise<PostModel>
     {
         const response = this.cxt.create(
-            DatabaseNames.Post,
+            TableNames.Post,
             { PostID: await this.cxt.newID(), ProjectID, PostName, PostDescription, PostDate, PostData, UserID, ImageID, MetaTags, IsPublished } as PostModel
         );
         return response;
@@ -154,20 +154,20 @@ export class FaunaContext implements DatabaseContextInterface
 
     async postGet(PostID: string): Promise<PostModel>
     {
-        const response = await this.cxt.get<PostModel>(DatabasePrimaryKeys.Post, PostID);
+        const response = await this.cxt.get<PostModel>(TableIndexNames.Post, PostID);
         return response;
     }
 
     async postGetAll(): Promise<PostModel[]>
     {
-        const response = await this.cxt.getAll<PostModel>(DatabaseNames.Post);
+        const response = await this.cxt.getAll<PostModel>(TableNames.Post);
         return response;
     }
 
     async postGetListItems(): Promise<PostListItem[]>
     {
         const response = await this.cxt.getAllFragmented<PostListItem>(
-            DatabaseNames.Post,
+            TableNames.Post,
             Lambda(
                 "x",
                 {
@@ -201,25 +201,25 @@ export class FaunaContext implements DatabaseContextInterface
     ): Promise<void>
     {
         await this.cxt.update(
-            DatabasePrimaryKeys.Post, PostID,
+            TableIndexNames.Post, PostID,
             { ProjectID, PostName, UserID, ImageID, PostDescription, PostDate, PostData, MetaTags, IsPublished } as PostModel
         );
     }
 
     async postDelete(PostID: string): Promise<void>
     {
-        await this.cxt.delete(DatabasePrimaryKeys.Post, PostID);
+        await this.cxt.delete(TableIndexNames.Post, PostID);
     }
 
     async imageCreate(ImageData: string): Promise<ImageModel>
     {
-        const response = await this.cxt.create(DatabaseNames.Image, { ImageData } as ImageModel)
+        const response = await this.cxt.create(TableNames.Image, { ImageData } as ImageModel)
         return response;
     }
 
     async imageGet(ImageID: string): Promise<ImageModel | null>
     {
-        const response = await this.cxt.get<ImageModel | null>(DatabasePrimaryKeys.Image, ImageID);
+        const response = await this.cxt.get<ImageModel | null>(TableIndexNames.Image, ImageID);
         return response;
     }
 
@@ -230,23 +230,23 @@ export class FaunaContext implements DatabaseContextInterface
 
     async imageDelete(ImageID: string): Promise<void>
     {
-        await this.cxt.delete(DatabasePrimaryKeys.Image, ImageID);
+        await this.cxt.delete(TableIndexNames.Image, ImageID);
     }
 
     async databaseCreate(): Promise<void>
     {
         await Promise.all([
-            this.cxt.taskCollectionCreate(DatabaseNames.User),
-            this.cxt.taskCollectionCreate(DatabaseNames.Project),
-            this.cxt.taskCollectionCreate(DatabaseNames.Post),
-            this.cxt.taskCollectionCreate(DatabaseNames.Image)
+            this.cxt.taskCollectionCreate(TableNames.User),
+            this.cxt.taskCollectionCreate(TableNames.Project),
+            this.cxt.taskCollectionCreate(TableNames.Post),
+            this.cxt.taskCollectionCreate(TableNames.Image)
         ])
 
         await Promise.all([
-            this.cxt.taskIndexCreate(DatabaseNames.User, DatabasePrimaryKeys.User, DatabasePrimaryKeyColumns.User),
-            this.cxt.taskIndexCreate(DatabaseNames.Project, DatabasePrimaryKeys.Project, DatabasePrimaryKeyColumns.Project),
-            this.cxt.taskIndexCreate(DatabaseNames.Post, DatabasePrimaryKeys.Post, DatabasePrimaryKeyColumns.Post),
-            this.cxt.taskIndexCreate(DatabaseNames.Image, DatabasePrimaryKeys.Image, DatabasePrimaryKeyColumns.Image)
+            this.cxt.taskIndexCreate(TableNames.User, TableIndexNames.User, TableIndexColumns.User),
+            this.cxt.taskIndexCreate(TableNames.Project, TableIndexNames.Project, TableIndexColumns.Project),
+            this.cxt.taskIndexCreate(TableNames.Post, TableIndexNames.Post, TableIndexColumns.Post),
+            this.cxt.taskIndexCreate(TableNames.Image, TableIndexNames.Image, TableIndexColumns.Image)
         ])
     }
 }
