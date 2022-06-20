@@ -138,7 +138,7 @@ export class FaunaContext implements DatabaseContextInterface
         PostName: string,
         PostDescription: string,
         PostDate: number,
-        PostData: string,
+        PostData: { [key: string]: string }[],
         UserID: string,
         ImageID: string,
         MetaTags: { [key: string]: string },
@@ -152,9 +152,9 @@ export class FaunaContext implements DatabaseContextInterface
         return response;
     }
 
-    async postGet(PostID: string): Promise<PostModel | null>
+    async postGet(PostID: string): Promise<PostModel>
     {
-        const response = await this.cxt.get<PostModel | null>(DatabasePrimaryKeys.Post, PostID);
+        const response = await this.cxt.get<PostModel>(DatabasePrimaryKeys.Post, PostID);
         return response;
     }
 
@@ -187,13 +187,23 @@ export class FaunaContext implements DatabaseContextInterface
         throw new Error("Method not implemented.");
     }
 
-    async postUpdate(PostID: string, ProjectID: string, UserID: string, ImageID: string | undefined, PostDescription: string | undefined, PostDate: string, PostData: string, MetaTags: string | undefined, IsPublished: boolean): Promise<void>
+    async postUpdate(
+        PostID: string,
+        ProjectID: string,
+        PostName: string,
+        PostDescription: string,
+        PostDate: number,
+        PostData: { [key: string]: string }[],
+        UserID: string,
+        ImageID: string,
+        MetaTags: { [key: string]: string },
+        IsPublished: boolean
+    ): Promise<void>
     {
-        throw new Error("Method not implemented.");
-        // await this.cxt.update(
-        //     DatabasePrimaryKeys.Post, PostID,
-        //     { ProjectID, UserID, ImageID, PostDescription, PostDate, PostData, MetaTags, IsPublished } as PostModel
-        // );
+        await this.cxt.update(
+            DatabasePrimaryKeys.Post, PostID,
+            { ProjectID, PostName, UserID, ImageID, PostDescription, PostDate, PostData, MetaTags, IsPublished } as PostModel
+        );
     }
 
     async postDelete(PostID: string): Promise<void>

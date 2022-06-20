@@ -48,7 +48,7 @@ export interface DatabaseContextInterface
         PostName: string,
         PostDescription: string,
         PostDate: number,
-        PostData: string,
+        PostData: { [key: string]: string }[],
         UserID: string,
         ImageID: string,
         MetaTags: { [key: string]: string },
@@ -57,7 +57,7 @@ export interface DatabaseContextInterface
         Promise<PostModel>
 
     postGet(PostID: string):
-        Promise<PostModel | null>
+        Promise<PostModel>
 
     postGetAll():
         Promise<PostModel[]>
@@ -68,7 +68,18 @@ export interface DatabaseContextInterface
     postGetByProjectPaged(projectID: number, pageNumber: number, pageSize: number):
         Promise<ProjectModel[]>
 
-    postUpdate(PostID: string, ProjectID: string, UserID: string, ImageID: string | undefined, PostDescription: string | undefined, PostDate: string, PostData: string, MetaTags: string | undefined, IsPublished: boolean):
+    postUpdate(
+        PostID: string,
+        ProjectID: string,
+        PostName: string,
+        PostDescription: string,
+        PostDate: number,
+        PostData: { [key: string]: string }[],
+        UserID: string,
+        ImageID: string,
+        MetaTags: { [key: string]: string },
+        IsPublished: boolean
+    ):
         Promise<void>
 
     postDelete(PostID: string):

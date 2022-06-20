@@ -7,7 +7,11 @@ export function LayoutNav()
 
     function GetNavLink(path: string, label: string, icon?: string)
     {
-        return <Nav.Link active={router.pathname.startsWith(path)} href={path}>
+        const active =
+            (path == "/" && router.pathname == "/") ||
+            (path != "/" && router.pathname.startsWith(path));
+
+        return <Nav.Link active={active} href={path}>
             {icon && <i className={`bi bi-${icon} me-1`}></i>}
             {label}
         </Nav.Link>

@@ -7,7 +7,7 @@ export interface PostModel
     PostName: string
     PostDescription: string
     PostDate: number
-    PostData: string
+    PostData: { [key: string]: string }[]
     MetaTags: { [key: string]: string }
     IsPublished: boolean
 }

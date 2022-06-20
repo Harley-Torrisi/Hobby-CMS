@@ -3,6 +3,7 @@ import { getSession } from 'next-auth/react';
 import { ApiResonseBuilder } from '@lib/helpers/internalApiHelper';
 import { PostControllerSS } from '@lib/controllers/postController';
 import { PostCreate } from '@lib/models/postDTOs/postCreate';
+import { PostEdit } from '@lib/models/postDTOs/postEdit';
 
 export default async function handler(
 	req: NextApiRequest,
@@ -18,10 +19,26 @@ export default async function handler(
 
 	try
 	{
+		if (req.method == "GET")
+		{
+			const controller = new PostControllerSS();
+			const projects = await controller.get(req.query['postID'] as string);
+			const response = ApiResonseBuilder.successGet(projects);
+			return res.status(response.status).json(response);
+		}
+
 		if (req.method == "POST")
 		{
 			const controller = new PostControllerSS();
 			const projects = await controller.create(req.body as PostCreate);
+			const response = ApiResonseBuilder.successGet(projects);
+			return res.status(response.status).json(response);
+		}
+
+		if (req.method == "PUT")
+		{
+			const controller = new PostControllerSS();
+			const projects = await controller.update(req.body as PostEdit);
 			const response = ApiResonseBuilder.successGet(projects);
 			return res.status(response.status).json(response);
 		}
