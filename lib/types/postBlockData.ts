@@ -1,0 +1,1 @@
+export type PostBlockData = { [key: string]: string }

@@ -1,3 +1,5 @@
+import { PostBlockData } from "@lib/types/postBlockData"
+
 export interface PostModel
 {
     PostID: string
@@ -7,7 +9,7 @@ export interface PostModel
     PostName: string
     PostDescription: string
     PostDate: number
-    PostData: { [key: string]: string }[]
+    PostData: PostBlockData[]
     MetaTags: { [key: string]: string }
     IsPublished: boolean
 }
