@@ -1,0 +1,36 @@
+.Container {
+    padding: 0.75em;
+    padding-top: 0.5em;
+}
+
+.Header {
+    display: flex;
+    justify-content: space-between;
+}
+
+.HeaderText {
+    opacity: 0.65;
+    font-size: 0.85em;
+}
+
+.Content {
+    padding-top: 0.5em;
+}
+
+.ContentTableBody {
+    tr {
+        td:first-child {
+            width: 2em;
+        }
+
+        td:nth-child(3),
+        td:nth-child(5),
+        td:nth-child(6) {
+            width: 0%;
+        }
+
+        td {
+            vertical-align: middle;
+        }
+    }
+}

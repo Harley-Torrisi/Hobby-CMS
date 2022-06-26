@@ -12,6 +12,7 @@ import { Badge, Button, ButtonGroup, ButtonToolbar, FloatingLabel, Form, FormChe
 import { BootstrapToastShow } from "@components/boostrapToast";
 import { BlockEditors } from "@components/postBlockEditors";
 import { PostBlockData } from "@lib/types/postBlockData";
+import { InputMetaData } from "@components/inputMetaData";
 
 export const getServerSideProps: GetServerSideProps = async (context) =>
 {
@@ -135,6 +136,11 @@ const Post: NextPageCustom<PageProps> = (props) =>
                             placeholder={`Post Description ${postDetails.postDescription && "(" + postDetails.postDescription.length + " of 500)"}`}
                             value={postDetails.postDescription}
                             onChangeValue={(value) => setPostDetails({ ...postDetails, postDescription: value.substring(0, 500) })}
+                        />
+                        {/* Meta Data */}
+                        <InputMetaData
+                            data={postDetails.metaTags}
+                            onDataChange={(data) => setPostDetails({ ...postDetails, metaTags: data })}
                         />
                         <hr />
                         {/* Add Block Input */}

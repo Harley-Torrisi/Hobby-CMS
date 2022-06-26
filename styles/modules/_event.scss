@@ -7,6 +7,10 @@
         display: none;
     }
 
+    .ev-trigger-nth-vis {
+        visibility: hidden;
+    }
+
     &:hover {
         .ev-trigger-nth-d-block {
             display: block;
@@ -14,6 +18,10 @@
 
         .ev-trigger-nth-d-flex {
             display: flex;
+        }
+
+        .ev-trigger-nth-vis {
+            visibility: visible;
         }
     }
 
