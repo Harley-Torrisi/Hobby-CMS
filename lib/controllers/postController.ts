@@ -1,23 +1,23 @@
-import { PostModel } from "@lib/database/models/postModel";
-import { PostCreate } from "@lib/models/postDTOs/postCreate";
-import { PostListItem } from "@lib/models/postDTOs/postListItem";
+import { PostEntity } from "@lib/database/models/postEntity";
+import { PostCreate } from "@lib/models/post/postCreate";
+import { PostListItem } from "@lib/models/post/postListItem";
 import { BaseControllerCS } from "./_baseControllerCS";
 import { BaseControllerSS } from "./_baseControllerSS";
 import { getUnixTime } from "date-fns";
-import { PostEdit } from "@lib/models/postDTOs/postEdit";
+import { PostModel, postModelFromEntity, postModelToEntity } from "@lib/models/post/postModel";
 
 export interface PostControllerInterface
 {
     getPostListItems(): Promise<PostListItem[]>
-    create(data: PostCreate): Promise<PostModel>
-    get(postID: string): Promise<PostEdit>
-    update(data: PostEdit): Promise<void>
+    create(data: PostCreate): Promise<PostEntity>
+    get(postID: string): Promise<PostModel>
+    update(data: PostModel): Promise<void>
 }
 
 
 export class PostControllerCS extends BaseControllerCS implements PostControllerInterface
 {
-    async update(data: PostEdit): Promise<void>
+    async update(data: PostModel): Promise<void>
     {
         const response = await this.api.Request<void>({
             method: "PUT",
@@ -29,9 +29,9 @@ export class PostControllerCS extends BaseControllerCS implements PostController
             throw response.responseMessage;
     }
 
-    async get(postID: string): Promise<PostEdit>
+    async get(postID: string): Promise<PostModel>
     {
-        const response = await this.api.Request<PostEdit>({
+        const response = await this.api.Request<PostModel>({
             method: "GET",
             action: "post",
             queryParams: {
@@ -57,9 +57,9 @@ export class PostControllerCS extends BaseControllerCS implements PostController
         return response.data;
     }
 
-    async create(data: PostCreate): Promise<PostModel>
+    async create(data: PostCreate): Promise<PostEntity>
     {
-        const response = await this.api.Request<PostModel>({
+        const response = await this.api.Request<PostEntity>({
             method: "POST",
             action: "post",
             data: data
@@ -73,39 +73,18 @@ export class PostControllerCS extends BaseControllerCS implements PostController
 
 export class PostControllerSS extends BaseControllerSS implements PostControllerInterface
 {
-    async update(data: PostEdit): Promise<void>
+    async update(data: PostModel): Promise<void>
     {
         const db = await this.dbPromise;
-        await db.postUpdate(
-            data.postID,
-            data.projectID,
-            data.postName,
-            data.postDescription,
-            data.postDate,
-            data.postData,
-            data.userID,
-            data.imageID,
-            data.metaTags,
-            data.isPublished
-        );
+        const payload = postModelToEntity(data);
+        await db.postUpdate(payload);
     }
 
-    async get(postID: string): Promise<PostEdit>
+    async get(postID: string): Promise<PostModel>
     {
         const db = await this.dbPromise;
         const response = await db.postGet(postID);
-        const data: PostEdit = {
-            postID: response.PostID,
-            projectID: response.ProjectID,
-            userID: response.UserID,
-            imageID: response.ImageID,
-            postName: response.PostName,
-            postDescription: response.PostDescription,
-            postDate: response.PostDate,
-            postData: response.PostData,
-            metaTags: response.MetaTags,
-            isPublished: response.IsPublished,
-        };
+        const data = postModelFromEntity(response);
         return data;
     }
 
@@ -116,7 +95,7 @@ export class PostControllerSS extends BaseControllerSS implements PostController
         return response;
     }
 
-    async create(data: PostCreate): Promise<PostModel>
+    async create(data: PostCreate): Promise<PostEntity>
     {
         const db = await this.dbPromise;
         const response = await db.postCreate(data.projectId, data.postName, '', getUnixTime(new Date()), [], data.userId, '', {}, false);

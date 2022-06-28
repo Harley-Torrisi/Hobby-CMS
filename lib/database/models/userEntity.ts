@@ -1,4 +1,4 @@
-export interface UserModel
+export interface UserEntity
 {
     UserID: string
     UserName: string

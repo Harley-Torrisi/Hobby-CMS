@@ -1,9 +1,9 @@
-import { PostListItem } from "@lib/models/postDTOs/postListItem"
+import { PostListItem } from "@lib/models/post/postListItem"
 import { ProjectOptionItem } from "@lib/models/projectDTOs/projectOptionItem"
-import { ImageModel } from "../models/imageModel"
-import { PostModel } from "../models/postModel"
-import { ProjectModel } from "../models/projectModel"
-import { UserModel } from "../models/userModel"
+import { ImageEntity } from "../models/imageEntity"
+import { PostEntity } from "../models/postEntity"
+import { ProjectEntity } from "../models/projectEntity"
+import { UserEntity } from "../models/userEntity"
 
 export interface DatabaseContextInterface
 {
@@ -11,13 +11,13 @@ export interface DatabaseContextInterface
         Promise<void>
 
     userCreate(UserID: string, UserName: string, PasswordToken: string, IsAdmin: boolean):
-        Promise<UserModel>
+        Promise<UserEntity>
 
     userGet(UserID: string):
-        Promise<UserModel | null>
+        Promise<UserEntity | null>
 
     userGetAll():
-        Promise<UserModel[]>
+        Promise<UserEntity[]>
 
     userUpdate(UserID: string, UserName: string, PasswordToken: string, IsAdmin: boolean, IsActive: boolean):
         Promise<void>
@@ -26,19 +26,19 @@ export interface DatabaseContextInterface
         Promise<void>
 
     projectCreate(ProjectName: string, AccessToken: string):
-        Promise<ProjectModel>
+        Promise<ProjectEntity>
 
     projectGet(ProjectID: string):
-        Promise<ProjectModel | null>
+        Promise<ProjectEntity | null>
 
     projectGetAll():
-        Promise<ProjectModel[]>
+        Promise<ProjectEntity[]>
 
     projectGetOptionItems():
         Promise<ProjectOptionItem[]>
 
     projectUpdate(ProjectID: string, ProjectName: string, AccessToken: string, IsActive: boolean):
-        Promise<ProjectModel>
+        Promise<ProjectEntity>
 
     projectDelete(ProjectID: string):
         Promise<void>
@@ -54,45 +54,34 @@ export interface DatabaseContextInterface
         MetaTags: { [key: string]: string },
         IsPublished: boolean
     ):
-        Promise<PostModel>
+        Promise<PostEntity>
 
     postGet(PostID: string):
-        Promise<PostModel>
+        Promise<PostEntity>
 
     postGetAll():
-        Promise<PostModel[]>
+        Promise<PostEntity[]>
 
     postGetListItems():
         Promise<PostListItem[]>
 
     postGetByProjectPaged(projectID: number, pageNumber: number, pageSize: number):
-        Promise<ProjectModel[]>
+        Promise<ProjectEntity[]>
 
-    postUpdate(
-        PostID: string,
-        ProjectID: string,
-        PostName: string,
-        PostDescription: string,
-        PostDate: number,
-        PostData: { [key: string]: string }[],
-        UserID: string,
-        ImageID: string,
-        MetaTags: { [key: string]: string },
-        IsPublished: boolean
-    ):
+    postUpdate(data: PostEntity):
         Promise<void>
 
     postDelete(PostID: string):
         Promise<void>
 
     imageCreate(ImageData: string):
-        Promise<ImageModel>
+        Promise<ImageEntity>
 
     imageGet(ImageID: string):
-        Promise<ImageModel | null>
+        Promise<ImageEntity | null>
 
     imageGetPaged(pageNumber: number, pageSize: number):
-        Promise<ImageModel[]>
+        Promise<ImageEntity[]>
 
     imageDelete(ImageID: string):
         Promise<void>

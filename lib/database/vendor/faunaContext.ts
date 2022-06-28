@@ -1,12 +1,12 @@
 import { FaunaQueries } from "./faunaQueries";
 import { DatabaseContextInterface } from "../context/databaseContextInterface";
-import { ImageModel } from "../models/imageModel";
-import { PostModel } from "../models/postModel";
-import { ProjectModel } from "../models/projectModel";
-import { UserModel } from "../models/userModel";
+import { ImageEntity } from "../models/imageEntity";
+import { PostEntity } from "../models/postEntity";
+import { ProjectEntity } from "../models/projectEntity";
+import { UserEntity } from "../models/userEntity";
 import { ProjectOptionItem } from "@lib/models/projectDTOs/projectOptionItem";
 import { Get, Lambda, Select, Var } from "faunadb";
-import { PostListItem } from "@lib/models/postDTOs/postListItem";
+import { PostListItem } from "@lib/models/post/postListItem";
 
 enum TableNames
 {
@@ -51,21 +51,21 @@ export class FaunaContext implements DatabaseContextInterface
         });
     }
 
-    async userCreate(UserID: string, UserName: string, PasswordToken: string, IsAdmin: boolean): Promise<UserModel>
+    async userCreate(UserID: string, UserName: string, PasswordToken: string, IsAdmin: boolean): Promise<UserEntity>
     {
-        const response = await this.cxt.create<UserModel>(TableNames.User, { UserID, UserName, PasswordToken, IsAdmin } as UserModel)
+        const response = await this.cxt.create<UserEntity>(TableNames.User, { UserID, UserName, PasswordToken, IsAdmin } as UserEntity)
         return response;
     }
 
-    async userGet(UserID: string): Promise<UserModel | null>
+    async userGet(UserID: string): Promise<UserEntity | null>
     {
-        const response = await this.cxt.get<UserModel | null>(TableIndexNames.User, UserID);
+        const response = await this.cxt.get<UserEntity | null>(TableIndexNames.User, UserID);
         return response;
     }
 
-    async userGetAll(): Promise<UserModel[]>
+    async userGetAll(): Promise<UserEntity[]>
     {
-        const response = await this.cxt.getAll<UserModel>(TableNames.User);
+        const response = await this.cxt.getAll<UserEntity>(TableNames.User);
         return response;
     }
 
@@ -73,7 +73,7 @@ export class FaunaContext implements DatabaseContextInterface
     {
         await this.cxt.update(
             TableIndexNames.User, UserID,
-            { UserName, PasswordToken, IsAdmin, IsActive } as UserModel
+            { UserName, PasswordToken, IsAdmin, IsActive } as UserEntity
         );
     }
 
@@ -82,26 +82,26 @@ export class FaunaContext implements DatabaseContextInterface
         await this.cxt.delete(TableIndexNames.User, UserID);
     }
 
-    async projectCreate(ProjectName: string, AccessToken: string): Promise<ProjectModel>
+    async projectCreate(ProjectName: string, AccessToken: string): Promise<ProjectEntity>
     {
         const response = this.cxt.create(TableNames.Project, {
             ProjectID: await this.cxt.newID(),
             ProjectName,
             AccessToken,
             IsActive: true
-        } as ProjectModel)
+        } as ProjectEntity)
         return response;
     }
 
-    async projectGet(ProjectID: string): Promise<ProjectModel | null>
+    async projectGet(ProjectID: string): Promise<ProjectEntity | null>
     {
-        const response = await this.cxt.get<ProjectModel | null>(TableIndexNames.Project, ProjectID);
+        const response = await this.cxt.get<ProjectEntity | null>(TableIndexNames.Project, ProjectID);
         return response;
     }
 
-    async projectGetAll(): Promise<ProjectModel[]>
+    async projectGetAll(): Promise<ProjectEntity[]>
     {
-        const response = await this.cxt.getAll<ProjectModel>(TableNames.Project);
+        const response = await this.cxt.getAll<ProjectEntity>(TableNames.Project);
         return response;
     }
 
@@ -120,11 +120,11 @@ export class FaunaContext implements DatabaseContextInterface
         return response;
     }
 
-    async projectUpdate(ProjectID: string, ProjectName: string, AccessToken: string, IsActive: boolean): Promise<ProjectModel>
+    async projectUpdate(ProjectID: string, ProjectName: string, AccessToken: string, IsActive: boolean): Promise<ProjectEntity>
     {
         return await this.cxt.update(
             TableIndexNames.Project, ProjectID,
-            { ProjectName, AccessToken, IsActive } as ProjectModel
+            { ProjectName, AccessToken, IsActive } as ProjectEntity
         );
     }
 
@@ -143,24 +143,24 @@ export class FaunaContext implements DatabaseContextInterface
         ImageID: string,
         MetaTags: { [key: string]: string },
         IsPublished: boolean
-    ): Promise<PostModel>
+    ): Promise<PostEntity>
     {
         const response = this.cxt.create(
             TableNames.Post,
-            { PostID: await this.cxt.newID(), ProjectID, PostName, PostDescription, PostDate, PostData, UserID, ImageID, MetaTags, IsPublished } as PostModel
+            { PostID: await this.cxt.newID(), ProjectID, PostName, PostDescription, PostDate, PostBlocks: PostData, UserID, ImageID, MetaTags, IsPublished } as PostEntity
         );
         return response;
     }
 
-    async postGet(PostID: string): Promise<PostModel>
+    async postGet(PostID: string): Promise<PostEntity>
     {
-        const response = await this.cxt.get<PostModel>(TableIndexNames.Post, PostID);
+        const response = await this.cxt.get<PostEntity>(TableIndexNames.Post, PostID);
         return response;
     }
 
-    async postGetAll(): Promise<PostModel[]>
+    async postGetAll(): Promise<PostEntity[]>
     {
-        const response = await this.cxt.getAll<PostModel>(TableNames.Post);
+        const response = await this.cxt.getAll<PostEntity>(TableNames.Post);
         return response;
     }
 
@@ -182,27 +182,16 @@ export class FaunaContext implements DatabaseContextInterface
         return response;
     }
 
-    async postGetByProjectPaged(projectID: number, pageNumber: number, pageSize: number): Promise<ProjectModel[]>
+    async postGetByProjectPaged(projectID: number, pageNumber: number, pageSize: number): Promise<ProjectEntity[]>
     {
         throw new Error("Method not implemented.");
     }
 
-    async postUpdate(
-        PostID: string,
-        ProjectID: string,
-        PostName: string,
-        PostDescription: string,
-        PostDate: number,
-        PostData: { [key: string]: string }[],
-        UserID: string,
-        ImageID: string,
-        MetaTags: { [key: string]: string },
-        IsPublished: boolean
-    ): Promise<void>
+    async postUpdate(data: PostEntity): Promise<void>
     {
-        await this.cxt.update(
-            TableIndexNames.Post, PostID,
-            { ProjectID, PostName, UserID, ImageID, PostDescription, PostDate, PostData, MetaTags, IsPublished } as PostModel
+        await this.cxt.replace(
+            TableIndexNames.Post, data.PostID,
+            data
         );
     }
 
@@ -211,19 +200,19 @@ export class FaunaContext implements DatabaseContextInterface
         await this.cxt.delete(TableIndexNames.Post, PostID);
     }
 
-    async imageCreate(ImageData: string): Promise<ImageModel>
+    async imageCreate(ImageData: string): Promise<ImageEntity>
     {
-        const response = await this.cxt.create(TableNames.Image, { ImageData } as ImageModel)
+        const response = await this.cxt.create(TableNames.Image, { ImageData } as ImageEntity)
         return response;
     }
 
-    async imageGet(ImageID: string): Promise<ImageModel | null>
+    async imageGet(ImageID: string): Promise<ImageEntity | null>
     {
-        const response = await this.cxt.get<ImageModel | null>(TableIndexNames.Image, ImageID);
+        const response = await this.cxt.get<ImageEntity | null>(TableIndexNames.Image, ImageID);
         return response;
     }
 
-    async imageGetPaged(pageNumber: number, pageSize: number): Promise<ImageModel[]>
+    async imageGetPaged(pageNumber: number, pageSize: number): Promise<ImageEntity[]>
     {
         throw new Error("Method not implemented.");
     }

@@ -1,4 +1,4 @@
-export interface ImageModel
+export interface ImageEntity
 {
     ImageID: string
     ImageData: string

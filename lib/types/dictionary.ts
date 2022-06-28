@@ -1,7 +1,7 @@
 export type DictionaryS<TValue> = {
-    [key in string]: TValue;
+    [key: string]: TValue;
 };
 
 export type DictionaryN<TValue> = {
-    [key in number]: TValue;
+    [key: number]: TValue;
 };

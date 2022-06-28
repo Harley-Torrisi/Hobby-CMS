@@ -3,7 +3,7 @@ import { LayoutHead } from "@components/layoutHead";
 import { LayoutMain } from "@components/layoutMain";
 import { PostControllerCS, PostControllerInterface, PostControllerSS } from "@lib/controllers/postController";
 import { NextPageCustom } from "@lib/extentions/appPropsCustom";
-import { PostEdit } from "@lib/models/postDTOs/postEdit";
+import { PostModel } from "@lib/models/post/postModel";
 import { GetServerSideProps } from "next";
 import { useState } from "react";
 import { format as formatDate, fromUnixTime, getUnixTime } from 'date-fns';
@@ -29,7 +29,7 @@ export const getServerSideProps: GetServerSideProps = async (context) =>
 
 interface PageProps
 {
-    postData: PostEdit
+    postData: PostModel
 }
 
 
@@ -44,27 +44,27 @@ const Post: NextPageCustom<PageProps> = (props) =>
     {
         return !(
             (blockIndex == 0 && direction == "up") ||
-            (blockIndex == postDetails.postData.length - 1 && direction == "down")
+            (blockIndex == postDetails.postBlocks.length - 1 && direction == "down")
         );
     }
 
     function moveBlock(blockIndex: number, direction: "up" | "down")
     {
         if (!canBlockMove(blockIndex, direction)) return;
-        const current = postDetails.postData[blockIndex];
+        const current = postDetails.postBlocks[blockIndex];
         const targetIndex = blockIndex + (direction == "up" ? -1 : 1);
-        const target = postDetails.postData[targetIndex];
-        const postData = [...postDetails.postData];
-        postData[blockIndex] = target;
-        postData[targetIndex] = current;
-        setPostDetails({ ...postDetails, postData })
+        const target = postDetails.postBlocks[targetIndex];
+        const postBlocks = [...postDetails.postBlocks];
+        postBlocks[blockIndex] = target;
+        postBlocks[targetIndex] = current;
+        setPostDetails({ ...postDetails, postBlocks })
     }
 
     function removeBlock(blockIndex: number)
     {
-        const postData = [...postDetails.postData];
-        postData.splice(blockIndex, 1);
-        setPostDetails({ ...postDetails, postData });
+        const postBlocks = [...postDetails.postBlocks];
+        postBlocks.splice(blockIndex, 1);
+        setPostDetails({ ...postDetails, postBlocks });
     }
 
     async function onSaveHandler()
@@ -90,9 +90,9 @@ const Post: NextPageCustom<PageProps> = (props) =>
 
     function onBlockEditHandler(blockIndex: number, postBlock: PostBlockData)
     {
-        const postData = [...postDetails.postData];
-        postData[blockIndex] = postBlock;
-        setPostDetails({ ...postDetails, postData })
+        const postBlocks = [...postDetails.postBlocks];
+        postBlocks[blockIndex] = postBlock;
+        setPostDetails({ ...postDetails, postBlocks })
     }
 
     function onAddNewBlockHandler()
@@ -106,9 +106,9 @@ const Post: NextPageCustom<PageProps> = (props) =>
                 break;
             default: throw "Cannot add block, type not configured";
         }
-        const postData = [...postDetails.postData];
-        postData.push(block);
-        setPostDetails({ ...postDetails, postData })
+        const postBlocks = [...postDetails.postBlocks];
+        postBlocks.push(block);
+        setPostDetails({ ...postDetails, postBlocks })
     }
 
     return (<>
@@ -189,7 +189,7 @@ const Post: NextPageCustom<PageProps> = (props) =>
                         <Button variant="primary" size="lg" style={{ width: '3em' }} onClick={onAddNewBlockHandler}>+</Button>
                     </InputGroup>
                     {/* Post Blocks */}
-                    {postDetails.postData.map((x, i) =>
+                    {postDetails.postBlocks.map((x, i) =>
                         <div key={i} className='border rounded'>
                             {/* Block Controller */}
                             <div className="flex flex-between flex-align-center gap-1 p-1 border rounded-top">

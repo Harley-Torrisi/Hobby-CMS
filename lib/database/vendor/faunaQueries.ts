@@ -4,7 +4,7 @@ import
     Collection, Documents, Index,
     Match, Paginate, Select, Map, Lambda,
     CreateIndex, CreateCollection,
-    Client, ClientConfig, NewId, Expr
+    Client, ClientConfig, NewId, Expr, Replace
 } from 'faunadb';
 
 interface QueryResponsSingle<TData>
@@ -97,6 +97,20 @@ export class FaunaQueries
     {
         const response = await this.client.query<QueryResponsSingle<TEntity>>(
             Update(
+                Select("ref", Get(Match(
+                    Index(indexName),
+                    indexValue
+                ))),
+                { data }
+            )
+        );
+        return response.data;
+    }
+
+    replace = async <TEntity>(indexName: string, indexValue: string, data: object): Promise<TEntity> =>
+    {
+        const response = await this.client.query<QueryResponsSingle<TEntity>>(
+            Replace(
                 Select("ref", Get(Match(
                     Index(indexName),
                     indexValue

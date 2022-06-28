@@ -2,8 +2,8 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { getSession } from 'next-auth/react';
 import { ApiResonseBuilder } from '@lib/helpers/internalApiHelper';
 import { PostControllerSS } from '@lib/controllers/postController';
-import { PostCreate } from '@lib/models/postDTOs/postCreate';
-import { PostEdit } from '@lib/models/postDTOs/postEdit';
+import { PostCreate } from '@lib/models/post/postCreate';
+import { PostModel } from '@lib/models/post/postModel';
 
 export default async function handler(
 	req: NextApiRequest,
@@ -38,7 +38,7 @@ export default async function handler(
 		if (req.method == "PUT")
 		{
 			const controller = new PostControllerSS();
-			const projects = await controller.update(req.body as PostEdit);
+			const projects = await controller.update(req.body as PostModel);
 			const response = ApiResonseBuilder.successGet(projects);
 			return res.status(response.status).json(response);
 		}

@@ -1,6 +1,7 @@
+import { DictionaryS } from "@lib/types/dictionary"
 import { PostBlockData } from "@lib/types/postBlockData"
 
-export interface PostModel
+export interface PostEntity
 {
     PostID: string
     ProjectID: string
@@ -9,7 +10,7 @@ export interface PostModel
     PostName: string
     PostDescription: string
     PostDate: number
-    PostData: PostBlockData[]
-    MetaTags: { [key: string]: string }
+    PostBlocks: PostBlockData[]
+    MetaTags: DictionaryS<string>
     IsPublished: boolean
 }

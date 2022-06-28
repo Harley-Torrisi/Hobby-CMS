@@ -1,4 +1,4 @@
-export interface ProjectModel
+export interface ProjectEntity
 {
     ProjectID: string
     ProjectName: string
