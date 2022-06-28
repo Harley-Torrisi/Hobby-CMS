@@ -122,69 +122,10 @@ const Post: NextPageCustom<PageProps> = (props) =>
                     <h5 className="m-0">Saving</h5>
                 </div>
             }
-            {!isSaving &&
-                <div className="row">
-                    <div className="col col-9 flex-v gap-3">
-                        {/* Post Name */}
-                        <InputElement.Large
-                            placeholder={`Post Name ${postDetails.postName && "(" + postDetails.postName.length + " of 150)"}`}
-                            value={postDetails.postName}
-                            onChangeValue={(value) => setPostDetails({ ...postDetails, postName: value.substring(0, 150) })}
-                        />
-                        {/* Post Description */}
-                        <InputElement.Large
-                            placeholder={`Post Description ${postDetails.postDescription && "(" + postDetails.postDescription.length + " of 500)"}`}
-                            value={postDetails.postDescription}
-                            onChangeValue={(value) => setPostDetails({ ...postDetails, postDescription: value.substring(0, 500) })}
-                        />
-                        {/* Meta Data */}
-                        <InputMetaData
-                            data={postDetails.metaTags}
-                            onDataChange={(data) => setPostDetails({ ...postDetails, metaTags: data })}
-                        />
-                        <hr />
-                        {/* Add Block Input */}
-                        <InputGroup className="m-0">
-                            <FloatingLabel label="Add Block" className="flex-grow">
-                                <Form.Select
-                                    value={newBlockType}
-                                    onChange={(e) => setNewBlockType(BlockEditors.BlockTypes[e.target.value as keyof typeof BlockEditors.BlockTypes])}
-                                >
-                                    {BlockEditors.BlockTypesArray.map((x, i) => <option key={i} value={x}>{x}</option>)}
-                                </Form.Select>
-                            </FloatingLabel>
-                            <Button variant="primary" size="lg" style={{ width: '3em' }} onClick={onAddNewBlockHandler}>+</Button>
-                        </InputGroup>
-                        {/* Post Blocks */}
-                        {postDetails.postData.map((x, i) =>
-                            <div key={i} className='border rounded'>
-                                {/* Block Controller */}
-                                <div className="flex flex-between flex-align-center gap-1 p-1 border rounded-top">
-                                    <Badge bg="light" text="secondary" className="flex flex-align-center">{x['type']}</Badge>
-                                    <ButtonToolbar className="gap-1">
-                                        <ButtonGroup>
-                                            <Button variant="dark" size="sm" disabled={!canBlockMove(i, "up")} onClick={() => moveBlock(i, "up")}>
-                                                <i className="bi bi-chevron-up"></i>
-                                            </Button>
-                                            <Button variant="dark" size="sm" disabled={!canBlockMove(i, "down")} onClick={() => moveBlock(i, "down")}>
-                                                <i className="bi bi-chevron-down"></i>
-                                            </Button>
-                                        </ButtonGroup>
-                                        <ButtonGroup>
-                                            <Button variant="danger" size="sm" onClick={() => removeBlock(i)}>
-                                                <i className="bi bi-trash"></i>
-                                            </Button>
-                                        </ButtonGroup>
-                                    </ButtonToolbar>
-                                </div>
-                                {/* Block Specific */}
-                                {BlockEditors.CreateEditorElement({ data: x, onDataChange: (e) => onBlockEditHandler(i, e) }, x['type'])}
-                            </div>
-                        )}
-                    </div>
-                    <div className="col col-3 flex-v gap-3">
-                        {/* Post Save */}
-                        <Button variant="success" size="lg" onClick={onSaveHandler}>Save Post</Button>
+            {!isSaving && <>
+                {/* Post Options */}
+                <div className="row g-3">
+                    <div className="col col-lg-5 col-md-6 col-12">
                         {/* Post Date */}
                         <InputElement.Large
                             type="date"
@@ -192,6 +133,8 @@ const Post: NextPageCustom<PageProps> = (props) =>
                             value={formatDate(fromUnixTime(postDetails.postDate), 'yyyy-MM-dd', { locale: enAU })}
                             onChangeValue={(value) => setPostDetails({ ...postDetails, postDate: getUnixTime(new Date(value)) })}
                         />
+                    </div>
+                    <div className="col col-lg-5 col-md-6 col-12">
                         {/* Post Status */}
                         <FloatingLabel label="Post Status">
                             <Form.Select value={postDetails.isPublished.toString()} onChange={(e) => setPostDetails({ ...postDetails, isPublished: e.target.value == "true" })}>
@@ -200,8 +143,79 @@ const Post: NextPageCustom<PageProps> = (props) =>
                             </Form.Select>
                         </FloatingLabel>
                     </div>
+                    <div className="col col-lg-2 col-12">
+                        {/* Post Save */}
+                        <Button className="h-100 w-100" variant="success" size="lg" onClick={onSaveHandler}>Save Post</Button>
+                    </div>
                 </div>
-            }
+                <div className="row row-cols-1 g-3 mt-1">
+                    <div className="col">
+                        {/* Post Name */}
+                        <InputElement.Large
+                            placeholder={`Post Name ${postDetails.postName && "(" + postDetails.postName.length + " of 150)"}`}
+                            value={postDetails.postName}
+                            onChangeValue={(value) => setPostDetails({ ...postDetails, postName: value.substring(0, 150) })}
+                        />
+                    </div>
+                    <div className="col">
+                        {/* Post Description */}
+                        <InputElement.Large
+                            placeholder={`Post Description ${postDetails.postDescription && "(" + postDetails.postDescription.length + " of 500)"}`}
+                            value={postDetails.postDescription}
+                            onChangeValue={(value) => setPostDetails({ ...postDetails, postDescription: value.substring(0, 500) })}
+                        />
+                    </div>
+                    <div className="col">
+                        {/* Meta Data */}
+                        <InputMetaData
+                            data={postDetails.metaTags}
+                            onDataChange={(x) => setPostDetails({ ...postDetails, metaTags: x })}
+                        />
+                    </div>
+                </div>
+                <hr />
+                {/* Post Data */}
+                <div>
+                    {/* Add Block Input */}
+                    <InputGroup className="m-0 mb-3">
+                        <FloatingLabel label="Add Block" className="flex-grow">
+                            <Form.Select
+                                value={newBlockType}
+                                onChange={(e) => setNewBlockType(BlockEditors.BlockTypes[e.target.value as keyof typeof BlockEditors.BlockTypes])}
+                            >
+                                {BlockEditors.BlockTypesArray.map((x, i) => <option key={i} value={x}>{x}</option>)}
+                            </Form.Select>
+                        </FloatingLabel>
+                        <Button variant="primary" size="lg" style={{ width: '3em' }} onClick={onAddNewBlockHandler}>+</Button>
+                    </InputGroup>
+                    {/* Post Blocks */}
+                    {postDetails.postData.map((x, i) =>
+                        <div key={i} className='border rounded'>
+                            {/* Block Controller */}
+                            <div className="flex flex-between flex-align-center gap-1 p-1 border rounded-top">
+                                <Badge bg="light" text="secondary" className="flex flex-align-center">{x['type']}</Badge>
+                                <ButtonToolbar className="gap-1">
+                                    <ButtonGroup>
+                                        <Button variant="dark" size="sm" disabled={!canBlockMove(i, "up")} onClick={() => moveBlock(i, "up")}>
+                                            <i className="bi bi-chevron-up"></i>
+                                        </Button>
+                                        <Button variant="dark" size="sm" disabled={!canBlockMove(i, "down")} onClick={() => moveBlock(i, "down")}>
+                                            <i className="bi bi-chevron-down"></i>
+                                        </Button>
+                                    </ButtonGroup>
+                                    <ButtonGroup>
+                                        <Button variant="danger" size="sm" onClick={() => removeBlock(i)}>
+                                            <i className="bi bi-trash"></i>
+                                        </Button>
+                                    </ButtonGroup>
+                                </ButtonToolbar>
+                            </div>
+                            {/* Block Specific */}
+                            {BlockEditors.CreateEditorElement({ data: x, onDataChange: (e) => onBlockEditHandler(i, e) }, x['type'])}
+                        </div>
+                    )}
+                </div>
+            </>}
         </LayoutMain>
     </>)
 }

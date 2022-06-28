@@ -73,7 +73,7 @@ export function InputMetaData(props: InputMetaDataProps)
                 <Table hover size="sm" className="m-0">
                     <tbody className={Styles.ContentTableBody}>
                         {getKeys().map((x, i) =>
-                            <tr key={i} className="ev-hover">
+                            <tr key={i}>
                                 <td className="text-center ps-2">
                                     <i className={`bi bi-${x} el-hand text-secondary`}></i>
                                 </td>
@@ -84,8 +84,8 @@ export function InputMetaData(props: InputMetaDataProps)
                                 <td>
                                     <Form.Control value={props.data[x]} onChange={(e) => updateKeyValue(x, e.target.value)} size="sm" />
                                 </td>
-                                <td className="ev-trigger-nth-vis">:</td>
-                                <td className="ev-trigger-nth-vis">
+                                <td>:</td>
+                                <td>
                                     <i className="bi bi-trash text-danger text-start pe-2 ev-hover ev-trigger-hand" onClick={() => deleteKey(x)}></i>
                                 </td>
                             </tr>
