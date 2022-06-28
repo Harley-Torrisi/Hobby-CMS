@@ -9,27 +9,32 @@ import { BootstrapToastShow } from '@components/boostrapToast';
 import { PopuptInput } from '@components/popupInput'
 import { PopupConfirm } from '@components/popupConfirm'
 import { ProjectControllerInterface, ProjectControllerSS, ProjectControllerCS } from '@lib/controllers/projectController'
-import { ProjectGetResponse } from '@lib/models/projectDTOs/projectGetResponse'
+import { ProjectModel } from '@lib/models/project/projectModel'
 
 export const getServerSideProps: GetServerSideProps = async (context) =>
 {
     const controller: ProjectControllerInterface = new ProjectControllerSS();
     const data = await controller.getAll();
     return {
-        props: { data }
+        props: { projects: data } as PageProps
     }
 }
 
-const Projects: NextPageCustom<any> = (props) =>
+interface PageProps
 {
-    const [projects, setProjects] = useState<ProjectGetResponse[]>(props.data);
-    const [editingProject, setEditingProject] = useState<ProjectGetResponse | null>(null);
+    projects: ProjectModel[]
+}
+
+const Projects: NextPageCustom<PageProps> = (props) =>
+{
+    const [projects, setProjects] = useState<ProjectModel[]>(props.projects);
+    const [editingProject, setEditingProject] = useState<ProjectModel | null>(null);
     const [actionWaiting, setActionWaiting] = useState(false);
     const [showActiveProjectToken, setShowActiveProjectToken] = useState(false);
     const newProjectInputRef = PopuptInput.GetRef();
     const deleteConfirmRef = PopupConfirm.GetRef();
 
-    async function deleteProjectHandler(projectID: string)
+    async function deleteProjectHandler(projectId: string)
     {
         deleteConfirmRef.current?.Show({
             header: "Are you sure you want to delete?",
@@ -40,14 +45,14 @@ const Projects: NextPageCustom<any> = (props) =>
                     try
                     {
                         const controller: ProjectControllerInterface = new ProjectControllerCS();
-                        await controller.delete({ projectID });
+                        await controller.delete(projectId);
 
                         BootstrapToastShow({
                             title: 'Complete', message: 'Project has been deleted.',
                             variant: "info", toastPosition: "top-center",
                         });
 
-                        const index = projects.indexOf(projects.find(x => x.projectID == projectID)!);
+                        const index = projects.indexOf(projects.find(x => x.projectID == projectId)!);
                         projects.splice(index, 1);
                         setProjects([...projects]);
                     }
@@ -77,7 +82,7 @@ const Projects: NextPageCustom<any> = (props) =>
                 try
                 {
                     const controller: ProjectControllerInterface = new ProjectControllerCS();
-                    const response = await controller.create({ projectName: value });
+                    const response = await controller.create(value);
 
                     BootstrapToastShow({
                         title: 'Complete', message: 'Project has been added.',
@@ -105,10 +110,10 @@ const Projects: NextPageCustom<any> = (props) =>
         setEditingProject(null);
     }
 
-    function editProjectOpenHandler(project: ProjectGetResponse)
+    function editProjectOpenHandler(projectId: string)
     {
         setShowActiveProjectToken(false);
-        setEditingProject(project);
+        setEditingProject(projects.find(x => x.projectID == projectId)!);
     }
 
     async function editProjectSaveHandler()
@@ -129,7 +134,7 @@ const Projects: NextPageCustom<any> = (props) =>
         try
         {
             const controller: ProjectControllerInterface = new ProjectControllerCS();
-            const updated = await controller.update(editingProject);
+            await controller.update(editingProject);
 
             BootstrapToastShow({
                 title: 'Complete',
@@ -138,8 +143,8 @@ const Projects: NextPageCustom<any> = (props) =>
                 toastPosition: "top-center",
             });
 
-            const index = projects.indexOf(projects.find(x => x.projectID == updated.projectID)!);
-            projects[index] = updated;
+            const index = projects.indexOf(projects.find(x => x.projectID == editingProject.projectID)!);
+            projects[index] = editingProject;
             setProjects([...projects]);
             setEditingProject(null);
         }
@@ -186,7 +191,7 @@ const Projects: NextPageCustom<any> = (props) =>
                                             {x.projectName}
                                         </span>
                                         <div className='ev-trigger-nth-d-flex gap-2'>
-                                            <span role="button" className='text-primary' onClick={() => editProjectOpenHandler(x)}>[Show]</span>
+                                            <span role="button" className='text-primary' onClick={() => editProjectOpenHandler(x.projectID)}>[Show]</span>
                                             <span role="button" className='text-danger' onClick={() => deleteProjectHandler(x.projectID)}>[Delete]</span>
                                         </div>
                                     </div>

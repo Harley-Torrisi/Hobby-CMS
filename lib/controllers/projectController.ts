@@ -1,19 +1,16 @@
-import { ProjectCreateRequest } from "@lib/models/projectDTOs/projectCreateRequest";
-import { ProjectDeleteRequest } from "@lib/models/projectDTOs/projectDeleteRequest";
-import { ProjectGetResponse } from "@lib/models/projectDTOs/projectGetResponse";
-import { ProjectOptionItem } from "@lib/models/projectDTOs/projectOptionItem";
-import { ProjectUpdateRequest } from "@lib/models/projectDTOs/projectUpdateRequest";
+import { ProjectModel, projectModelFromEntity, projectModelToEntity } from "@lib/models/project/projectModel";
+import { ProjectOptionItem } from "@lib/models/project/projectOptionItem";
 import { CryptoServiceFactory } from "@lib/services/cryptoService";
 import { BaseControllerCS } from "./_baseControllerCS";
 import { BaseControllerSS } from "./_baseControllerSS";
 
 export interface ProjectControllerInterface
 {
-    getAll(): Promise<ProjectGetResponse[]>
+    getAll(): Promise<ProjectModel[]>
     getOptionItems(): Promise<ProjectOptionItem[]>
-    delete(data: ProjectDeleteRequest): Promise<boolean>
-    update(data: ProjectUpdateRequest): Promise<ProjectGetResponse>
-    create(data: ProjectCreateRequest): Promise<ProjectGetResponse>
+    delete(projectId: string): Promise<boolean>
+    update(data: ProjectModel): Promise<void>
+    create(projectName: string): Promise<ProjectModel>
 }
 
 export class ProjectControllerCS extends BaseControllerCS implements ProjectControllerInterface
@@ -30,37 +27,35 @@ export class ProjectControllerCS extends BaseControllerCS implements ProjectCont
         return response.data;
     }
 
-    async create(data: ProjectCreateRequest): Promise<ProjectGetResponse>
+    async create(projectName: string): Promise<ProjectModel>
     {
-        const response = await this.api.Request<ProjectGetResponse>({
+        const response = await this.api.Request<ProjectModel>({
             method: "POST",
+            action: "project",
+            data: { projectName }
+        });
+
+        if (!response.succeeded || !response.data)
+            throw response.responseMessage;
+
+        return response.data;
+    }
+
+    async update(data: ProjectModel): Promise<void>
+    {
+        const response = await this.api.Request<ProjectModel>({
+            method: "PUT",
             action: "project",
             data: data
         });
 
-        if (!response.succeeded || !response.data)
+        if (!response.succeeded)
             throw response.responseMessage;
-
-        return response.data;
     }
 
-    async update(projectUpdate: ProjectUpdateRequest): Promise<ProjectGetResponse>
+    async getAll(): Promise<ProjectModel[]>
     {
-        const response = await this.api.Request<ProjectGetResponse>({
-            method: "PUT",
-            action: "project",
-            data: projectUpdate
-        });
-
-        if (!response.succeeded || !response.data)
-            throw response.responseMessage;
-
-        return response.data;
-    }
-
-    async getAll(): Promise<ProjectGetResponse[]>
-    {
-        const response = await this.api.Request<ProjectGetResponse[]>({
+        const response = await this.api.Request<ProjectModel[]>({
             method: "GET",
             action: "project",
         });
@@ -70,12 +65,12 @@ export class ProjectControllerCS extends BaseControllerCS implements ProjectCont
         return response.data;
     }
 
-    async delete(data: ProjectDeleteRequest): Promise<boolean>
+    async delete(projectId: string): Promise<boolean>
     {
         const response = await this.api.Request<boolean>({
             method: "DELETE",
             action: "project",
-            data: data
+            data: { projectId }
         });
 
         if (!response.succeeded)
@@ -94,63 +89,36 @@ export class ProjectControllerSS extends BaseControllerSS implements ProjectCont
         return response;
     }
 
-    async create(data: ProjectCreateRequest): Promise<ProjectGetResponse>
+    async create(projectName: string): Promise<ProjectModel>
     {
         const sec = await CryptoServiceFactory.getDefault();
-        const accessToken = await sec.hashValueDefault(data.projectName + await sec.randomUUID());
-
+        const accessToken = await sec.hashValueDefault(projectName + await sec.randomUUID());
         const db = await this.dbPromise;
-        const request = await db.projectCreate(data.projectName, accessToken);
-
-        const response: ProjectGetResponse = {
-            projectID: request.ProjectID,
-            projectName: request.ProjectName,
-            accessToken: request.AccessToken,
-            isActive: request.IsActive
-        };
-
-        return response;
-    }
-
-    async update(data: ProjectUpdateRequest): Promise<ProjectGetResponse>
-    {
-        const db = await this.dbPromise;
-
-        const request = await db.projectUpdate(
-            data.projectID,
-            data.projectName,
-            data.accessToken,
-            data.isActive
-        );
-
-        const response: ProjectGetResponse = {
-            projectID: request.ProjectID,
-            projectName: request.ProjectName,
-            accessToken: request.AccessToken,
-            isActive: request.IsActive
-        };
-
-        return response;
-    }
-
-    async getAll(): Promise<ProjectGetResponse[]>
-    {
-        const db = await this.dbPromise;
-        const response = await db.projectGetAll();
-        const data = response.map(x => ({
-            projectID: x.ProjectID,
-            projectName: x.ProjectName,
-            accessToken: x.AccessToken,
-            isActive: x.IsActive
-        } as ProjectGetResponse))
-
+        const response = await db.projectCreate(projectName, accessToken);
+        const data: ProjectModel = projectModelFromEntity(response);
         return data;
     }
 
-    async delete(data: ProjectDeleteRequest): Promise<boolean>
+    async update(data: ProjectModel): Promise<void>
     {
         const db = await this.dbPromise;
-        await db.projectDelete(data.projectID);
+        await db.projectUpdate(
+            projectModelToEntity(data)
+        );
+    }
+
+    async getAll(): Promise<ProjectModel[]>
+    {
+        const db = await this.dbPromise;
+        const response = await db.projectGetAll();
+        const data = response.map(x => { return projectModelFromEntity(x) })
+        return data;
+    }
+
+    async delete(projectId: string): Promise<boolean>
+    {
+        const db = await this.dbPromise;
+        await db.projectDelete(projectId);
         return true;
     }
 }

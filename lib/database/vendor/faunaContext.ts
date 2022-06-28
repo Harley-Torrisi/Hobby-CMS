@@ -4,9 +4,10 @@ import { ImageEntity } from "../models/imageEntity";
 import { PostEntity } from "../models/postEntity";
 import { ProjectEntity } from "../models/projectEntity";
 import { UserEntity } from "../models/userEntity";
-import { ProjectOptionItem } from "@lib/models/projectDTOs/projectOptionItem";
+import { ProjectOptionItem } from "@lib/models/project/projectOptionItem";
 import { Get, Lambda, Select, Var } from "faunadb";
 import { PostListItem } from "@lib/models/post/postListItem";
+import { getUnixTime } from "date-fns";
 
 enum TableNames
 {
@@ -57,9 +58,9 @@ export class FaunaContext implements DatabaseContextInterface
         return response;
     }
 
-    async userGet(UserID: string): Promise<UserEntity | null>
+    async userGet(userID: string): Promise<UserEntity>
     {
-        const response = await this.cxt.get<UserEntity | null>(TableIndexNames.User, UserID);
+        const response = await this.cxt.get<UserEntity>(TableIndexNames.User, userID);
         return response;
     }
 
@@ -120,11 +121,11 @@ export class FaunaContext implements DatabaseContextInterface
         return response;
     }
 
-    async projectUpdate(ProjectID: string, ProjectName: string, AccessToken: string, IsActive: boolean): Promise<ProjectEntity>
+    async projectUpdate(data: ProjectEntity): Promise<void>
     {
-        return await this.cxt.update(
-            TableIndexNames.Project, ProjectID,
-            { ProjectName, AccessToken, IsActive } as ProjectEntity
+        await this.cxt.update(
+            TableIndexNames.Project, data.ProjectID,
+            data
         );
     }
 
@@ -134,27 +135,35 @@ export class FaunaContext implements DatabaseContextInterface
     }
 
     async postCreate(
-        ProjectID: string,
-        PostName: string,
-        PostDescription: string,
-        PostDate: number,
-        PostData: { [key: string]: string }[],
-        UserID: string,
-        ImageID: string,
-        MetaTags: { [key: string]: string },
-        IsPublished: boolean
+        postName: string,
+        projectId: string,
+        userId: string
     ): Promise<PostEntity>
     {
+        const data: PostEntity = {
+            PostID: await this.cxt.newID(),
+            PostName: postName,
+            ProjectID: projectId,
+            UserID: userId,
+            PostDescription: '',
+            PostDate: getUnixTime(new Date()),
+            ImageID: '',
+            MetaTags: {},
+            PostBlocks: [],
+            IsPublished: false
+        }
+
         const response = this.cxt.create(
             TableNames.Post,
-            { PostID: await this.cxt.newID(), ProjectID, PostName, PostDescription, PostDate, PostBlocks: PostData, UserID, ImageID, MetaTags, IsPublished } as PostEntity
+            data
         );
+
         return response;
     }
 
-    async postGet(PostID: string): Promise<PostEntity>
+    async postGet(postID: string): Promise<PostEntity>
     {
-        const response = await this.cxt.get<PostEntity>(TableIndexNames.Post, PostID);
+        const response = await this.cxt.get<PostEntity>(TableIndexNames.Post, postID);
         return response;
     }
 

@@ -32,8 +32,6 @@ interface PageProps
     postData: PostModel
 }
 
-
-
 const Post: NextPageCustom<PageProps> = (props) =>
 {
     const [postDetails, setPostDetails] = useState(props.postData);

@@ -2,9 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { getSession } from 'next-auth/react';
 import { ApiResonseBuilder } from '@lib/helpers/internalApiHelper';
 import { ProjectControllerSS } from '@lib/controllers/projectController';
-import { ProjectDeleteRequest } from '@lib/models/projectDTOs/projectDeleteRequest';
-import { ProjectUpdateRequest } from '@lib/models/projectDTOs/projectUpdateRequest';
-import { ProjectCreateRequest } from '@lib/models/projectDTOs/projectCreateRequest';
+import { ProjectModel } from '@lib/models/project/projectModel';
 
 export default async function handler(
 	req: NextApiRequest,
@@ -31,7 +29,7 @@ export default async function handler(
 		if (req.method == "DELETE")
 		{
 			const controller = new ProjectControllerSS();
-			const projects = await controller.delete(req.body as ProjectDeleteRequest);
+			const projects = await controller.delete(req.body.projectId);
 			const response = ApiResonseBuilder.successGet(projects);
 			return res.status(response.status).json(response);
 		}
@@ -39,7 +37,7 @@ export default async function handler(
 		if (req.method == "PUT")
 		{
 			const controller = new ProjectControllerSS();
-			const projects = await controller.update(req.body as ProjectUpdateRequest);
+			const projects = await controller.update(req.body as ProjectModel);
 			const response = ApiResonseBuilder.successGet(projects);
 			return res.status(response.status).json(response);
 		}
@@ -47,7 +45,7 @@ export default async function handler(
 		if (req.method == "POST")
 		{
 			const controller = new ProjectControllerSS();
-			const projects = await controller.create(req.body as ProjectCreateRequest);
+			const projects = await controller.create(req.body.projectName);
 			const response = ApiResonseBuilder.successGet(projects);
 			return res.status(response.status).json(response);
 		}

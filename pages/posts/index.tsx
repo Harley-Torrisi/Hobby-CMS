@@ -7,7 +7,7 @@ import { ProjectControllerInterface, ProjectControllerSS } from "@lib/controller
 import { NextPageCustom } from "@lib/extentions/appPropsCustom";
 import { PostCreate } from "@lib/models/post/postCreate";
 import { PostListItem } from "@lib/models/post/postListItem";
-import { ProjectOptionItem } from "@lib/models/projectDTOs/projectOptionItem";
+import { ProjectOptionItem } from "@lib/models/project/projectOptionItem";
 import { GetServerSideProps } from "next";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";

@@ -1,5 +1,5 @@
 import { PostListItem } from "@lib/models/post/postListItem"
-import { ProjectOptionItem } from "@lib/models/projectDTOs/projectOptionItem"
+import { ProjectOptionItem } from "@lib/models/project/projectOptionItem"
 import { ImageEntity } from "../models/imageEntity"
 import { PostEntity } from "../models/postEntity"
 import { ProjectEntity } from "../models/projectEntity"
@@ -13,8 +13,8 @@ export interface DatabaseContextInterface
     userCreate(UserID: string, UserName: string, PasswordToken: string, IsAdmin: boolean):
         Promise<UserEntity>
 
-    userGet(UserID: string):
-        Promise<UserEntity | null>
+    userGet(userId: string):
+        Promise<UserEntity>
 
     userGetAll():
         Promise<UserEntity[]>
@@ -28,7 +28,7 @@ export interface DatabaseContextInterface
     projectCreate(ProjectName: string, AccessToken: string):
         Promise<ProjectEntity>
 
-    projectGet(ProjectID: string):
+    projectGet(projectID: string):
         Promise<ProjectEntity | null>
 
     projectGetAll():
@@ -37,26 +37,20 @@ export interface DatabaseContextInterface
     projectGetOptionItems():
         Promise<ProjectOptionItem[]>
 
-    projectUpdate(ProjectID: string, ProjectName: string, AccessToken: string, IsActive: boolean):
-        Promise<ProjectEntity>
+    projectUpdate(data: ProjectEntity):
+        Promise<void>
 
     projectDelete(ProjectID: string):
         Promise<void>
 
     postCreate(
-        ProjectID: string,
-        PostName: string,
-        PostDescription: string,
-        PostDate: number,
-        PostData: { [key: string]: string }[],
-        UserID: string,
-        ImageID: string,
-        MetaTags: { [key: string]: string },
-        IsPublished: boolean
+        postName: string,
+        projectId: string,
+        userId: string,
     ):
         Promise<PostEntity>
 
-    postGet(PostID: string):
+    postGet(postID: string):
         Promise<PostEntity>
 
     postGetAll():

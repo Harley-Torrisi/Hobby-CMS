@@ -3,7 +3,6 @@ import { PostCreate } from "@lib/models/post/postCreate";
 import { PostListItem } from "@lib/models/post/postListItem";
 import { BaseControllerCS } from "./_baseControllerCS";
 import { BaseControllerSS } from "./_baseControllerSS";
-import { getUnixTime } from "date-fns";
 import { PostModel, postModelFromEntity, postModelToEntity } from "@lib/models/post/postModel";
 
 export interface PostControllerInterface
@@ -98,7 +97,7 @@ export class PostControllerSS extends BaseControllerSS implements PostController
     async create(data: PostCreate): Promise<PostEntity>
     {
         const db = await this.dbPromise;
-        const response = await db.postCreate(data.projectId, data.postName, '', getUnixTime(new Date()), [], data.userId, '', {}, false);
+        const response = await db.postCreate(data.postName, data.projectId, data.userId);
         return response;
     }
 }
