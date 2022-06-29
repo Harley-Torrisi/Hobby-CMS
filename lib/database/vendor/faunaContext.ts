@@ -148,9 +148,10 @@ export class FaunaContext implements DatabaseContextInterface
             PostDescription: '',
             PostDate: getUnixTime(new Date()),
             ImageID: '',
-            MetaTags: {},
+            MetaData: {},
             PostBlocks: [],
-            IsPublished: false
+            IsPublished: false,
+            Tags: []
         }
 
         const response = this.cxt.create(

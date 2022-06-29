@@ -12,8 +12,9 @@ export interface PostModel
     postDescription: string
     postDate: number
     postBlocks: PostBlockData[]
-    metaTags: DictionaryS<string>
+    metaData: DictionaryS<string>
     isPublished: boolean
+    tags: string[]
 }
 
 export function postModelFromEntity(data: PostEntity): PostModel
@@ -27,8 +28,9 @@ export function postModelFromEntity(data: PostEntity): PostModel
         postDescription: data.PostDescription,
         postDate: data.PostDate,
         postBlocks: data.PostBlocks,
-        metaTags: data.MetaTags,
-        isPublished: data.IsPublished
+        metaData: data.MetaData,
+        isPublished: data.IsPublished,
+        tags: data.Tags
     };
 }
 
@@ -43,7 +45,8 @@ export function postModelToEntity(data: PostModel): PostEntity
         PostDescription: data.postDescription,
         PostDate: data.postDate,
         PostBlocks: data.postBlocks,
-        MetaTags: data.metaTags,
-        IsPublished: data.isPublished
+        MetaData: data.metaData,
+        IsPublished: data.isPublished,
+        Tags: data.tags
     };
 }

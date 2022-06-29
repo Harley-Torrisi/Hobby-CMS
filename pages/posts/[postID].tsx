@@ -166,8 +166,8 @@ const Post: NextPageCustom<PageProps> = (props) =>
                     <div className="col">
                         {/* Meta Data */}
                         <InputMetaData
-                            data={postDetails.metaTags}
-                            onDataChange={(x) => setPostDetails({ ...postDetails, metaTags: x })}
+                            data={postDetails.metaData}
+                            onDataChange={(x) => setPostDetails({ ...postDetails, metaData: x })}
                         />
                     </div>
                 </div>

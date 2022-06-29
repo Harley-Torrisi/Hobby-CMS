@@ -11,6 +11,7 @@ export interface PostEntity
     PostDescription: string
     PostDate: number
     PostBlocks: PostBlockData[]
-    MetaTags: DictionaryS<string>
+    MetaData: DictionaryS<string>
     IsPublished: boolean
+    Tags: string[]
 }
