@@ -13,6 +13,7 @@ import { BootstrapToastShow } from "@components/boostrapToast";
 import { BlockEditors } from "@components/postBlockEditors";
 import { PostBlockData } from "@lib/types/postBlockData";
 import { InputMetaData } from "@components/inputMetaData";
+import { InputTags } from "@components/inputTags";
 
 export const getServerSideProps: GetServerSideProps = async (context) =>
 {
@@ -161,6 +162,12 @@ const Post: NextPageCustom<PageProps> = (props) =>
                             placeholder={`Post Description ${postDetails.postDescription && "(" + postDetails.postDescription.length + " of 500)"}`}
                             value={postDetails.postDescription}
                             onChangeValue={(value) => setPostDetails({ ...postDetails, postDescription: value.substring(0, 500) })}
+                        />
+                    </div>
+                    <div className="col">
+                        <InputTags
+                            data={postDetails.tags}
+                            onDataUpdate={(tags) => setPostDetails({ ...postDetails, tags })}
                         />
                     </div>
                     <div className="col">

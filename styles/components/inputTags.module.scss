@@ -1,0 +1,53 @@
+.Container {
+    position: relative;
+}
+
+.Header {
+    display: flex;
+    justify-content: space-between;
+    position: absolute;
+    top: 0.55em;
+    left: 0.85em;
+    transition: all 0.15s ease-in-out;
+
+    &[custom-expand="true"] {
+        top: 1.3em;
+
+        .HeaderText {
+            opacity: 1;
+            font-size: 1em;
+        }
+    }
+
+    .HeaderText {
+        opacity: 0.65;
+        font-size: 0.85em;
+    }
+}
+
+.Input {
+    background-color: transparent;
+    padding: 2rem 0.8rem 0.4rem 0.8rem;
+
+    &:active {
+        background-color: transparent;
+    }
+
+    &:focus {
+        background-color: transparent;
+    }
+}
+
+.BadgeContainer {
+    display: flex;
+    gap: 0.3em;
+    position: absolute;
+    top: 2em;
+    left: 0.7em;
+    right: 0.7em;
+    overflow-x: hidden;
+
+    span * {
+        padding-top: 0.0875em;
+    }
+}
