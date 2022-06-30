@@ -16,6 +16,14 @@ export default function Document()
                 <link rel="stylesheet"
                     href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.2/font/bootstrap-icons.css"
                 />
+                <link
+                    href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap"
+                    rel="stylesheet"
+                />
+                <link
+                    href="https://fonts.googleapis.com/css2?family=Rubik&display=swap"
+                    rel="stylesheet"
+                />
             </Head>
             <body>
                 <Main />

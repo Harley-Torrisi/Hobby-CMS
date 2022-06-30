@@ -24,14 +24,15 @@ export function LayoutNav()
                 <Navbar.Toggle aria-controls="responsive-navbar-nav" />
                 <Navbar.Collapse id="responsive-navbar-nav">
                     <Nav className="me-auto">
-                        {GetNavLink("/", "Dashboard", "activity")}
+                        {/* {GetNavLink("/", "Dashboard", "activity")} */}
                         {GetNavLink("/projects", "Projects", "collection")}
                         {GetNavLink("/posts", "Posts", "card-text")}
-                        {GetNavLink("/users", "User Management", "people")}
-                        <Nav.Link href="#other">
+                        {/* {GetNavLink("/users", "User Management", "people")} */}
+                        {GetNavLink("/reference-api", "API Reference", "globe2")}
+                        {/* <Nav.Link href="#other">
                             <i className="bi bi-images me-1"></i>
                             Images
-                        </Nav.Link>
+                        </Nav.Link> */}
                     </Nav>
                     <Nav>
                         <Nav.Link href="/api/auth/signout">Sign Out</Nav.Link>
