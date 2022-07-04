@@ -1,4 +1,4 @@
-// import { InputPasswordOutlined } from "@components/input/inputPasswords";
+import { InputPasswordOutlined } from "@components/input/inputPasswords";
 import { InputSwitch } from "@components/input/inputSwitch";
 import { InputText } from "@components/input/inputText";
 import { LayoutHead } from "@components/layoutHead";
@@ -155,10 +155,10 @@ const Projects: NextPageCustom<PageProps> = (props) =>
                                         value={projectsTemp[i].projectName}
                                         onValueChange={(value) => updateProjectNameHandler(i, value)}
                                     />
-                                    {/* <InputPasswordOutlined
+                                    <InputPasswordOutlined
                                         label="Access Token"
                                         password={projectsTemp[i].accessToken}
-                                        onPasswordChange={(value) => updateProjectAccessTokenHandler(i, value)} /> */}
+                                        onPasswordChange={(value) => updateProjectAccessTokenHandler(i, value)} />
                                 </Stack>
                             </AccordionDetails>
 
