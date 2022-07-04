@@ -25,11 +25,11 @@ const Projects: NextPageCustom<PageProps> = (props) =>
     const [projectsTemp, setProjectsTemp] = useState<ProjectModel[]>([]);
     const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
-    useEffect(() =>
-    {
-        setProjects(deepCopy(props.projects));
-        setProjectsTemp(deepCopy(props.projects));
-    }, [props.projects])
+    // useEffect(() =>
+    // {
+    //     setProjects(deepCopy(props.projects));
+    //     setProjectsTemp(deepCopy(props.projects));
+    // }, [props.projects])
 
     const showToast = (success: boolean, message: string) => enqueueSnackbar(
         message,
