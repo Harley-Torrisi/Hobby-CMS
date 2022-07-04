@@ -11,9 +11,19 @@ html {
 
 #__next {
     height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
     overflow-y: auto;
 }
 
+// body {
+//     font-family: 'Rubik', sans-serif;
+// }
+
+
 body {
-    font-family: 'Rubik', sans-serif;
+    margin: 0;
 }
